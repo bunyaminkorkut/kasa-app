@@ -31,7 +31,6 @@ class GroupService implements IGroupRepository {
       final groups = KtList.from(
         jsonResponse.map((group) => GroupData.fromMap(group)),
       );
-      print(groups);
       return right(groups);
     } else {
       return left(
@@ -56,7 +55,6 @@ class GroupService implements IGroupRepository {
         'Authorization': 'Bearer $jwtToken', // Bearer eklendi
       },
     );
-      print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
       final requests = KtList.from(
@@ -87,7 +85,7 @@ class GroupService implements IGroupRepository {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken', // Bearer eklendi
       },
-      body: jsonEncode({'requestId': requestId}),
+      body: jsonEncode({'request_id': requestId}),
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -119,7 +117,7 @@ class GroupService implements IGroupRepository {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken', // Bearer eklendi
       },
-      body: jsonEncode({'requestId': requestId}),
+      body: jsonEncode({'request_id': requestId}),
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);

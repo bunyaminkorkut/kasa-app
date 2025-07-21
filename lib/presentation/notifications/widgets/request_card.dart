@@ -42,6 +42,16 @@ class _GroupRequestCardState extends State<GroupRequestCard> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant GroupRequestCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.request.status != widget.request.status) {
+      setState(() {
+        _status = widget.request.status;
+      });
+    }
+  }
+
   void handleAccept() async {
     final jwt = await secureStorage.read(key: 'jwt') ?? '';
     context.read<GroupBloc>().addSendAnswerRequest(
