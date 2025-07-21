@@ -6,6 +6,7 @@ final class GroupState extends Equatable {
     required this.groupsOption,
     required this.getGroupRequestsFailureOrRequests,
     required this.requestsOption,
+    this.isFetchingRequests = false,
     this.isFetchingData = false,
   });
 
@@ -15,31 +16,38 @@ final class GroupState extends Equatable {
       groupsOption: none(),
       getGroupRequestsFailureOrRequests: none(),
       requestsOption: none(),
+      isFetchingRequests: false,
       isFetchingData: false,
     );
   }
 
   final Option<FailureOr<KtList<GroupData>>> getGroupsFailureOrGroups;
   final Option<KtList<GroupData>> groupsOption;
-  final Option<FailureOr<KtList<GroupRequestData>>> getGroupRequestsFailureOrRequests;
+  final Option<FailureOr<KtList<GroupRequestData>>>
+  getGroupRequestsFailureOrRequests;
   final Option<KtList<GroupRequestData>> requestsOption;
   final bool isFetchingData;
+  final bool isFetchingRequests;
 
   GroupState copyWith({
     Option<FailureOr<KtList<GroupData>>>? getGroupsFailureOrGroups,
     Option<KtList<GroupData>>? groupsOption,
-    Option<FailureOr<KtList<GroupRequestData>>>? getGroupRequestsFailureOrRequests,
+    Option<FailureOr<KtList<GroupRequestData>>>?
+    getGroupRequestsFailureOrRequests,
     Option<KtList<GroupRequestData>>? requestsOption,
     bool? isFetchingData,
+    bool? isFetchingRequests,
   }) {
     return GroupState(
       getGroupsFailureOrGroups:
           getGroupsFailureOrGroups ?? this.getGroupsFailureOrGroups,
       groupsOption: groupsOption ?? this.groupsOption,
       getGroupRequestsFailureOrRequests:
-          getGroupRequestsFailureOrRequests ?? this.getGroupRequestsFailureOrRequests,
+          getGroupRequestsFailureOrRequests ??
+          this.getGroupRequestsFailureOrRequests,
       requestsOption: requestsOption ?? this.requestsOption,
       isFetchingData: isFetchingData ?? this.isFetchingData,
+      isFetchingRequests: isFetchingRequests ?? this.isFetchingRequests,
     );
   }
 
@@ -49,6 +57,7 @@ final class GroupState extends Equatable {
       (either) => either.isRight(),
     );
   }
+
   bool get hasFetchedRequestsSucceeded {
     return getGroupRequestsFailureOrRequests.fold(
       () => false,
@@ -57,5 +66,12 @@ final class GroupState extends Equatable {
   }
 
   @override
-  List<Object> get props => [getGroupsFailureOrGroups, isFetchingData];
+  List<Object> get props => [
+    getGroupsFailureOrGroups,
+    groupsOption,
+    getGroupRequestsFailureOrRequests,
+    requestsOption,
+    isFetchingData,
+    isFetchingRequests,
+  ];
 }

@@ -56,7 +56,7 @@ class GroupService implements IGroupRepository {
         'Authorization': 'Bearer $jwtToken', // Bearer eklendi
       },
     );
-
+      print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
       final requests = KtList.from(

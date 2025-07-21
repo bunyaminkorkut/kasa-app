@@ -65,21 +65,40 @@ class _KasaSplashViewState extends State<KasaSplashView>
   @override
   Widget build(BuildContext context) {
     return BlocListener<GroupBloc, GroupState>(
+      listenWhen: (previous, current) {
+        // Her iki success flag'ini ve fetching durumunu da dinle
+        return previous.hasFetchedGroupsSucceeded !=
+                current.hasFetchedGroupsSucceeded ||
+            previous.hasFetchedRequestsSucceeded !=
+                current.hasFetchedRequestsSucceeded ||
+            (previous.isFetchingData != current.isFetchingData &&
+                !current.isFetchingData);
+      },
       listener: (context, state) {
-        if (_navigated) return;
         if (!mounted) return;
 
-        if (state.hasFetchedGroupsSucceeded && state.hasFetchedRequestsSucceeded) {
+        // Eğer zaten yönlendirme yapılmışsa, tekrar yapma
+        if (_navigated) return;
+
+        // Eğer iki veri de başarıyla geldi ise home sayfasına git
+        if (state.hasFetchedGroupsSucceeded &&
+            state.hasFetchedRequestsSucceeded) {
           _navigated = true;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
-        } else if (!state.isFetchingData &&
-            state.getGroupsFailureOrGroups.isSome() &&
-            state.getGroupsFailureOrGroups
-                .getOrElse(() => dartz.right(KtList.empty()))
-                .isLeft()) {
+        }
+        // Eğer veri çekme işlemi bitti ve en az birinde hata varsa login'e yönlendir
+        else if (!state.isFetchingData &&
+            (state.getGroupsFailureOrGroups.fold(
+                  () => false,
+                  (either) => either.isLeft(),
+                ) ||
+                state.getGroupRequestsFailureOrRequests.fold(
+                  () => false,
+                  (either) => either.isLeft(),
+                ))) {
           _navigated = true;
           Navigator.pushReplacement(
             context,
@@ -87,6 +106,7 @@ class _KasaSplashViewState extends State<KasaSplashView>
           );
         }
       },
+
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light.copyWith(
           statusBarColor: Colors.transparent,

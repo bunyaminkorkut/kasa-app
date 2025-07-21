@@ -72,26 +72,29 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       state.copyWith(
         getGroupRequestsFailureOrRequests: none(),
         requestsOption: none(),
-        isFetchingData: true,
+        isFetchingRequests: true,
       ),
     );
+
     final failOrRequests = await _groupRepository.getRequests(
       jwtToken: event.jwtToken,
     );
 
-    final newState = await failOrRequests.fold(
-      (failure) async {
+    final newState = failOrRequests.fold(
+      (failure) {
         print(failure);
         return state.copyWith(
           getGroupRequestsFailureOrRequests: some(left(failure)),
-          isFetchingData: false,
+          requestsOption: none(),
+          isFetchingRequests: false,
         );
       },
-      (requests) async {
+      (requests) {
+        print(requests);
         return state.copyWith(
           getGroupRequestsFailureOrRequests: some(right(requests)),
           requestsOption: some(requests),
-          isFetchingData: false,
+          isFetchingRequests: false,
         );
       },
     );
