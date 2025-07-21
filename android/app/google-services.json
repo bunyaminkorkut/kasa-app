@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "339572852906",
+    "project_id": "kasa-c0f0a",
+    "storage_bucket": "kasa-c0f0a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339572852906:android:b2bfbad6b46591d81aa8d3",
+        "android_client_info": {
+          "package_name": "com.example.kasa_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEW2ydqpub34PIAF5uTVwxvjFFKJPccwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
