@@ -21,6 +21,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       if (event is _GroupEventGetGroupRequests) {
         await _onGetGroupRequests(event, emit);
       }
+      if (event is _GroupEventSendAnswerRequest) {
+        await _onSendAnswerRequest(event, emit);
+      }
     });
   }
 
@@ -30,6 +33,18 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
 
   void addFetchGroupRequests({required String jwtToken}) {
     add(_GroupEventGetGroupRequests(jwtToken: jwtToken));
+  }
+
+  void addSendAnswerRequest({
+    required String jwtToken,
+    required int requestId,
+    required bool isAccepting,
+  }) {
+    add(_GroupEventSendAnswerRequest(
+      jwtToken: jwtToken,
+      requestId: requestId,
+      isAccepting: isAccepting,
+    ));
   }
 
   Future<void> _onGetGroups(
@@ -100,6 +115,41 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     );
 
     emit(newState);
+  }
+
+  Future<void> _onSendAnswerRequest(
+    _GroupEventSendAnswerRequest event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(state.copyWith(isSendingReqAnswer: event.requestId));
+    final failOrResponse = event.isAccepting
+        ? await _groupRepository.acceptRequest(
+            jwtToken: event.jwtToken,
+            requestId: event.requestId,
+          )
+        : await _groupRepository.rejectRequest(
+            jwtToken: event.jwtToken,
+            requestId: event.requestId,
+          );
+
+    failOrResponse.fold(
+      (failure) {
+        return state.copyWith(
+          isSendingReqAnswer: -1,
+          getGroupRequestsFailureOrRequests: some(left(failure)),
+          requestsOption: none(),
+          isFetchingRequests: false,
+        );
+      },
+      (requests) {
+        return state.copyWith(
+          isSendingReqAnswer: -1,
+          getGroupRequestsFailureOrRequests: some(right(requests)),
+          requestsOption: some(requests),
+          isFetchingRequests: false,
+        );
+      },
+    );
   }
 
   final IGroupRepository _groupRepository;

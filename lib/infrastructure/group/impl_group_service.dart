@@ -72,6 +72,69 @@ class GroupService implements IGroupRepository {
     }
   }
 
+  @override
+  Future<FailureOr<KtList<GroupRequestData>>> acceptRequest({
+    required String jwtToken,
+    required int requestId,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(
+      Uri(path: '/accept-add-request'),
+    ); 
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({'requestId': requestId}),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = jsonDecode(response.body);
+      final requests = KtList.from(
+        jsonResponse.map((group) => GroupRequestData.fromMap(group)),
+      );
+      return right(requests);
+    } else {
+      return left(
+        ServerFailure(
+          'Failed to fetch groups: ${response.statusCode} - ${response.body}',
+        ),
+      );
+    }
+  }
 
+  @override
+  Future<FailureOr<KtList<GroupRequestData>>> rejectRequest({
+    required String jwtToken,
+    required int requestId,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(
+      Uri(path: '/reject-add-request'),
+    ); 
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({'requestId': requestId}),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = jsonDecode(response.body);
+      final requests = KtList.from(
+        jsonResponse.map((group) => GroupRequestData.fromMap(group)),
+      );
+      return right(requests);
+    } else {
+      return left(
+        ServerFailure(
+          'Failed to fetch groups: ${response.statusCode} - ${response.body}',
+        ),
+      );
+    }
+  }
+  
 
 }

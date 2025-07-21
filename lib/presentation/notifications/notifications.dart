@@ -25,9 +25,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
       context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No JWT found')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No JWT found')));
         Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     }
@@ -45,34 +45,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
         onRefresh: _refreshNotifications,
         child: BlocBuilder<GroupBloc, GroupState>(
           builder: (context, state) {
-            if (state.isFetchingData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state.getGroupRequestsFailureOrRequests.isSome()) {
-              return state.getGroupRequestsFailureOrRequests.fold(
-                () => const SizedBox.shrink(),
-                (either) => either.fold(
-                  (failure) =>
-                      Center(child: Text('Error: ${failure.toString()}')),
-                  (requests) {
-                    if (requests.isEmpty()) {
-                      return const Center(child: Text('No group requests found'));
-                    }
+            return state.requestsOption.fold(
+              () => const Center(child: Text('No requests')),
+              (requests) {
+                return ListView.builder(
+                  itemCount: requests.size,
+                  itemBuilder: (context, index) {
+                    final req = requests[index];
+                    final isLoading = state.isSendingReqAnswer == req.requestId;
 
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: requests.size,
-                      itemBuilder: (context, index) {
-                        final req = requests[index];
-                        return GroupRequestCard(request: req);
-                      },
-                    );
+                    return GroupRequestCard(request: req, isLoading: isLoading);
                   },
-                ),
-              );
-            }
-
-            return const Center(child: Text('No data'));
+                );
+              },
+            );
           },
         ),
       ),
