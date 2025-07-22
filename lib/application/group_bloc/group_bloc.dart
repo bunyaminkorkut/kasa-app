@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kasa_app/domain/core/failure_or.dart';
+import 'package:kasa_app/domain/group/accept_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
@@ -112,11 +113,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     _GroupEventSendAnswerRequest event,
     Emitter<GroupState> emit,
   ) async {
-    emit(
-      state.copyWith(
-        isSendingReqAnswer: event.requestId,
-      ),
-    );
+    emit(state.copyWith(isSendingReqAnswer: event.requestId));
 
     final failOrResponse = event.isAccepting
         ? await _groupRepository.acceptRequest(
@@ -132,15 +129,31 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       (failure) {
         emit(state.copyWith(isSendingReqAnswer: -1, isFetchingRequests: false));
       },
-      (newRequests) {
-        emit(
-          state.copyWith(
-            isSendingReqAnswer: -1,
-            getGroupRequestsFailureOrRequests: some(right(newRequests)),
-            requestsOption: some(newRequests),
-            isFetchingRequests: false,
-          ),
-        );
+      (response) {
+        if (event.isAccepting) {
+          final answerResponse = response as AcceptResponse;
+          emit(
+            state.copyWith(
+              isSendingReqAnswer: -1,
+              getGroupRequestsFailureOrRequests: some(
+                right(answerResponse.requests),
+              ),
+              getGroupsFailureOrGroups: some(right(answerResponse.groups)),
+              requestsOption: some(answerResponse.requests),
+              isFetchingRequests: false,
+            ),
+          );
+        } else {
+          final answerResponse = response as KtList<GroupRequestData>;
+          emit(
+            state.copyWith(
+              isSendingReqAnswer: -1,
+              getGroupRequestsFailureOrRequests: some(right(answerResponse)),
+              requestsOption: some(answerResponse),
+              isFetchingRequests: false,
+            ),
+          );
+        }
       },
     );
   }

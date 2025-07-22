@@ -43,37 +43,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
       appBar: AppBar(title: const Text('Notifications')),
       body: RefreshIndicator(
         onRefresh: _refreshNotifications,
-        child: BlocListener<GroupBloc, GroupState>(
-          listener: (context, state) {
-            print(
-              'State changed: isSendingReqAnswer = ${state.isSendingReqAnswer}',
-            );
-            print(
-              'Requests size: ${state.requestsOption.fold(() => 0, (r) => r.size)}',
+        child: BlocBuilder<GroupBloc, GroupState>(
+          builder: (context, state) {
+            return state.requestsOption.fold(
+              () => const Center(child: Text('There is no notification')),
+              (requests) {
+                if (requests.isEmpty()) {
+                  return const Center(child: Text('There is no notification'));
+                }
+                return ListView.builder(
+                  itemCount: requests.size,
+                  itemBuilder: (context, index) {
+                    final req = requests[index];
+                    final isLoading = state.isSendingReqAnswer == req.requestId;
+
+                    return GroupRequestCard(request: req, isLoading: isLoading);
+                  },
+                );
+              },
             );
           },
-          child: BlocBuilder<GroupBloc, GroupState>(
-            builder: (context, state) {
-              return state.requestsOption.fold(
-                () => const Center(child: Text('No requests')),
-                (requests) {
-                  return ListView.builder(
-                    itemCount: requests.size,
-                    itemBuilder: (context, index) {
-                      final req = requests[index];
-                      final isLoading =
-                          state.isSendingReqAnswer == req.requestId;
-
-                      return GroupRequestCard(
-                        request: req,
-                        isLoading: isLoading,
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
         ),
       ),
     );

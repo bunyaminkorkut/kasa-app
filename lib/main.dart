@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Kasa App',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
             useMaterial3: true,
           ),
           home: const KasaSplashView(logo: FlutterLogo(size: 120), isSplash: true),

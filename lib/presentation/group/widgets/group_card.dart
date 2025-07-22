@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:intl/intl.dart';
+import 'package:kasa_app/presentation/group/group_details/group_details_page.dart';
 
 class GroupCard extends StatelessWidget {
   final GroupData group;
@@ -27,7 +28,12 @@ class GroupCard extends StatelessWidget {
         ),
         leading: const Icon(Icons.group, size: 32, color: Colors.blue),
         onTap: () {
-          // Detay sayfasına geçiş vs. yapılabilir
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GroupDetailsPage(group: group),
+            ),
+          );
         },
       ),
     );

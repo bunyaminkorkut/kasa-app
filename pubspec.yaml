@@ -44,6 +44,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   kt_dart: ^1.1.0
   intl: ^0.20.2
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:
