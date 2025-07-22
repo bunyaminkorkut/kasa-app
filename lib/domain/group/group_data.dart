@@ -56,8 +56,8 @@ class GroupData extends Equatable {
 
   factory GroupData.fromMap(Map<String, dynamic> map) {
     return GroupData(
-      name: map['name'] as String,
-      id: map['id'] as int,
+      name: map['name'] as String? ?? '',
+      id: map['id'] as int ?? 0,
       createdDate: DateTime.fromMillisecondsSinceEpoch(
         (map['created_at'] as int) * 1000,
       ),
@@ -69,7 +69,10 @@ class GroupData extends Equatable {
           [],
       pendingRequests:
           (map['pending_requests'] as List?)
-              ?.map((e) => GroupSendedRequestData.fromMap(e as Map<String, dynamic>))
+              ?.map(
+                (e) =>
+                    GroupSendedRequestData.fromMap(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       isAdmin: map['is_admin'] as bool? ?? false,

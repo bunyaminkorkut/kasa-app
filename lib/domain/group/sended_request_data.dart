@@ -7,6 +7,7 @@ class GroupSendedRequestData extends Equatable {
     required this.groupName,
     required this.userName,
     required this.status,
+    required this.email,
     required this.requestDate,
   });
 
@@ -15,6 +16,7 @@ class GroupSendedRequestData extends Equatable {
   final String groupName;
   final String status;
   final String userName;
+  final String email;
   final DateTime requestDate;
 
   GroupSendedRequestData copyWith({
@@ -23,7 +25,8 @@ class GroupSendedRequestData extends Equatable {
     int? requestId,
     String? status,
     DateTime? requestDate,
-    String? userName
+    String? userName,
+    String? email
   }) {
     return GroupSendedRequestData(
       groupName: groupName ?? this.groupName,
@@ -31,7 +34,8 @@ class GroupSendedRequestData extends Equatable {
       requestId: requestId ?? this.requestId,
       status: status ?? this.status,
       requestDate: requestDate ?? this.requestDate,
-      userName: userName?? this.userName
+      userName: userName?? this.userName,
+      email: email ?? this.email
     );
   }
 
@@ -42,7 +46,8 @@ class GroupSendedRequestData extends Equatable {
       'request_id': requestId,
       'status': status,
       'created_at': requestDate.millisecondsSinceEpoch ~/ 1000,
-      'user_name': userName
+      'user_name': userName,
+      'email': email
     };
   }
 
@@ -56,6 +61,7 @@ class GroupSendedRequestData extends Equatable {
       requestDate: DateTime.fromMillisecondsSinceEpoch(
         (map['requested_at'] as int) * 1000,
       ),
+      email: map['email'] as String,
     );
   }
   
@@ -68,5 +74,6 @@ class GroupSendedRequestData extends Equatable {
     userName,
     status,
     requestDate,
+    email,
   ];
 }

@@ -1,45 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/presentation/group/edit_group_members/group_members.dart';
+import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 
 class GroupDetailsPage extends StatelessWidget {
-  final GroupData group;
+  final int groupId;
 
-  const GroupDetailsPage({super.key, required this.group});
+  const GroupDetailsPage({super.key, required this.groupId});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text(
-          group.name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-        shadowColor: Colors.black12,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildGroupInfoCard(),
-            const SizedBox(height: 20),
-            _buildMembersCard(context),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+    return BlocBuilder<GroupBloc, GroupState>(
+      builder: (context, state) {
+        // Grup listesi başarıyla yüklendi mi?
+        return state.getGroupsFailureOrGroups.fold(
+          // Veri yoksa yükleniyor ya da hata varsa mesaj göster
+          () => const Center(child: CircularProgressIndicator()),
+          (either) => either.fold(
+            (failure) => Center(child: Text('Grup yüklenirken hata oluştu')),
+            (groups) {
+              // groupId'ye göre grup bulunuyor
+              final group = groups.asList().firstWhere(
+                (g) => g.id == groupId,
+              );
+
+              if (group == null) {
+                return const Center(child: Text('Grup bulunamadı'));
+              }
+
+              // Grup bulunduysa detay sayfasını göster
+              return Scaffold(
+                backgroundColor: Colors.grey[50],
+                appBar: AppBar(
+                  title: Text(
+                    group.name,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  elevation: 0,
+                  shadowColor: Colors.black12,
+                  surfaceTintColor: Colors.transparent,
+                ),
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildGroupInfoCard(group),
+                      const SizedBox(height: 20),
+                      _buildMembersCard(context, group),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildGroupInfoCard() {
+  Widget _buildGroupInfoCard(GroupData group) {
     final formattedDate = DateFormat('dd MMMM yyyy').format(group.createdDate);
 
     return Card(
@@ -80,7 +105,7 @@ class GroupDetailsPage extends StatelessWidget {
             _buildInfoRow(
               Icons.person_outline,
               "Kurucu",
-              "${group.creator.fullname}",
+              group.creator.fullname,
               group.creator.email,
             ),
             const SizedBox(height: 16),
@@ -143,7 +168,7 @@ class GroupDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMembersCard(BuildContext context) {
+  Widget _buildMembersCard(BuildContext context, GroupData group) {
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -199,12 +224,10 @@ class GroupDetailsPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  EditGroupMembersPage(group: group),
+                              builder: (_) => EditGroupMembersPage(group: group),
                             ),
                           );
                         },
-
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -323,32 +346,6 @@ class GroupDetailsPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required VoidCallback onPressed,
-    required IconData icon,
-    required Color color,
-    required String tooltip,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: Tooltip(
-        message: tooltip,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.amber, size: 20),
-          ),
-        ),
       ),
     );
   }

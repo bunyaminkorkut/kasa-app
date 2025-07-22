@@ -6,7 +6,10 @@ final class GroupState extends Equatable {
     required this.groupsOption,
     required this.getGroupRequestsFailureOrRequests,
     required this.requestsOption,
+    required this.sendingAddGroupReq,
+    required this.sendAddGroupReqFailureOrRequests,
     required this.isSendingReqAnswer,
+    this.sendAddGroupReqErrorMessage,
     this.isFetchingRequests = false,
     this.isFetchingData = false,
   });
@@ -16,9 +19,12 @@ final class GroupState extends Equatable {
       getGroupsFailureOrGroups: none(),
       groupsOption: none(),
       getGroupRequestsFailureOrRequests: none(),
+      sendAddGroupReqFailureOrRequests: none(),
       requestsOption: none(),
       isSendingReqAnswer: -1,
+      sendAddGroupReqErrorMessage: null,
       isFetchingRequests: false,
+      sendingAddGroupReq: false,
       isFetchingData: false,
     );
   }
@@ -28,9 +34,12 @@ final class GroupState extends Equatable {
   final Option<FailureOr<KtList<GroupRequestData>>>
   getGroupRequestsFailureOrRequests;
   final Option<KtList<GroupRequestData>> requestsOption;
+  final Option<bool> sendAddGroupReqFailureOrRequests;
   final bool isFetchingData;
   final bool isFetchingRequests;
-  final int isSendingReqAnswer; 
+  final bool sendingAddGroupReq;
+  final int isSendingReqAnswer;
+  final String? sendAddGroupReqErrorMessage;
 
   GroupState copyWith({
     Option<FailureOr<KtList<GroupData>>>? getGroupsFailureOrGroups,
@@ -38,9 +47,12 @@ final class GroupState extends Equatable {
     Option<FailureOr<KtList<GroupRequestData>>>?
     getGroupRequestsFailureOrRequests,
     Option<KtList<GroupRequestData>>? requestsOption,
+    Option<bool>? sendAddGroupReqFailureOrRequests,
     bool? isFetchingData,
     bool? isFetchingRequests,
+    bool? sendingAddGroupReq,
     int? isSendingReqAnswer,
+    String? sendAddGroupReqErrorMessage,
   }) {
     return GroupState(
       getGroupsFailureOrGroups:
@@ -51,8 +63,14 @@ final class GroupState extends Equatable {
           this.getGroupRequestsFailureOrRequests,
       requestsOption: requestsOption ?? this.requestsOption,
       isFetchingData: isFetchingData ?? this.isFetchingData,
+      sendAddGroupReqFailureOrRequests:
+          sendAddGroupReqFailureOrRequests ??
+          this.sendAddGroupReqFailureOrRequests,
       isFetchingRequests: isFetchingRequests ?? this.isFetchingRequests,
+      sendingAddGroupReq: sendingAddGroupReq ?? this.sendingAddGroupReq,
       isSendingReqAnswer: isSendingReqAnswer ?? this.isSendingReqAnswer,
+      sendAddGroupReqErrorMessage:
+          sendAddGroupReqErrorMessage ?? this.sendAddGroupReqErrorMessage,
     );
   }
 
@@ -78,6 +96,9 @@ final class GroupState extends Equatable {
     requestsOption,
     isFetchingData,
     isFetchingRequests,
+    sendingAddGroupReq, // <-- ekle!
+    sendAddGroupReqFailureOrRequests, // <-- ekle!
     isSendingReqAnswer,
+    sendAddGroupReqErrorMessage ?? '',
   ];
 }

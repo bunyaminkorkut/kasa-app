@@ -129,4 +129,33 @@ class GroupService implements IGroupRepository {
       );
     }
   }
+
+  @override
+  Future<FailureOr<GroupData>> sendAddGroupRequest({
+    required String jwtToken,
+    required int groupId,
+    required String memberEmail,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/send-add-group-request'));
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({
+        "group_id": groupId.toString(),
+        "added_member": memberEmail,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final requests = GroupData.fromMap(jsonResponse);
+
+      return right(requests);
+    } else {
+      return left(ServerFailure('${response.body}'));
+    }
+  }
 }

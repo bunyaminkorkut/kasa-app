@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:intl/intl.dart';
+import 'package:kasa_app/presentation/group/edit_group_members/group_members.dart';
 import 'package:kasa_app/presentation/group/group_details/group_details_page.dart';
 
 class GroupCard extends StatelessWidget {
@@ -31,7 +32,7 @@ class GroupCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => GroupDetailsPage(group: group),
+              builder: (context) => GroupDetailsPage(groupId: group.id),
             ),
           );
         },

@@ -11,4 +11,5 @@ abstract class IGroupRepository {
   Future<FailureOr<KtList<GroupRequestData>>> getRequests({required String jwtToken});
   Future<FailureOr<AcceptResponse>> acceptRequest({required String jwtToken, required int requestId});
   Future<FailureOr<KtList<GroupRequestData>>> rejectRequest({required String jwtToken, required int requestId});
+  Future<FailureOr<GroupData>> sendAddGroupRequest({required String jwtToken, required int groupId, required String memberEmail});
 }

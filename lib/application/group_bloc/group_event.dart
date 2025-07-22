@@ -27,3 +27,15 @@ class _GroupEventSendAnswerRequest extends GroupEvent {
   final bool isAccepting; // true for accept, false for reject
   List<Object?> get props => [jwtToken, requestId, isAccepting];
 }
+
+class _GroupEventSendAddRequest extends GroupEvent {
+  _GroupEventSendAddRequest({
+    required this.jwtToken,
+    required this.groupId,
+    required this.userEmail,
+  });
+  final String jwtToken;
+  final int groupId;
+  final String userEmail; // true for accept, false for reject
+  List<Object?> get props => [jwtToken, groupId, userEmail];
+}

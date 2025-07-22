@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kasa_app/core/errors/failure.dart';
 import 'package:kasa_app/domain/core/failure_or.dart';
 import 'package:kasa_app/domain/group/accept_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
@@ -25,6 +26,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       if (event is _GroupEventSendAnswerRequest) {
         await _onSendAnswerRequest(event, emit);
       }
+      if (event is _GroupEventSendAddRequest) {
+        await _onSendAddRequest(event, emit);
+      }
     });
   }
 
@@ -46,6 +50,20 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
         jwtToken: jwtToken,
         requestId: requestId,
         isAccepting: isAccepting,
+      ),
+    );
+  }
+
+  void addSendAddRequest({
+    required String jwtToken,
+    required int groupId,
+    required String userEmail,
+  }) {
+    add(
+      _GroupEventSendAddRequest(
+        jwtToken: jwtToken,
+        groupId: groupId,
+        userEmail: userEmail,
       ),
     );
   }
@@ -154,6 +172,62 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
             ),
           );
         }
+      },
+    );
+  }
+
+  Future<void> _onSendAddRequest(
+    _GroupEventSendAddRequest event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        sendingAddGroupReq: true,
+        sendAddGroupReqFailureOrRequests: none(),
+      ),
+    );
+
+    final failOrResponse = await _groupRepository.sendAddGroupRequest(
+      jwtToken: event.jwtToken,
+      groupId: event.groupId,
+      memberEmail: event.userEmail,
+    );
+
+    failOrResponse.fold(
+      (failure) {
+        final errorMessage = failure is ServerFailure
+            ? failure.message
+            : "Bir hata oluştu";
+
+        emit(
+          state.copyWith(
+            sendingAddGroupReq: false,
+            sendAddGroupReqFailureOrRequests: some(false),
+            sendAddGroupReqErrorMessage: errorMessage,
+          ),
+        );
+      },
+      (updatedGroup) {
+        final updatedGroups = state.getGroupsFailureOrGroups.map(
+          (either) => either.map((groupList) {
+            final list = groupList.asList().toList();
+            final index = list.indexWhere((g) => g.id == updatedGroup.id);
+            if (index != -1) {
+              list[index] = updatedGroup;
+            } else {
+              list.add(updatedGroup);
+            }
+            return KtList.from(list);
+          }),
+        );
+
+        emit(
+          state.copyWith(
+            sendingAddGroupReq: false,
+            sendAddGroupReqFailureOrRequests: some(true),
+            getGroupsFailureOrGroups: updatedGroups,
+          ),
+        );
       },
     );
   }
