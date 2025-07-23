@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
+import 'package:kasa_app/presentation/group/add_expense_page/add_expense_page.dart';
 import 'package:kasa_app/presentation/group/edit_group_members/group_members.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 
@@ -22,9 +23,7 @@ class GroupDetailsPage extends StatelessWidget {
             (failure) => Center(child: Text('Grup yüklenirken hata oluştu')),
             (groups) {
               // groupId'ye göre grup bulunuyor
-              final group = groups.asList().firstWhere(
-                (g) => g.id == groupId,
-              );
+              final group = groups.asList().firstWhere((g) => g.id == groupId);
 
               if (group == null) {
                 return const Center(child: Text('Grup bulunamadı'));
@@ -56,6 +55,21 @@ class GroupDetailsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                floatingActionButton: FloatingActionButton.extended(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CreateExpensePage(group: group),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text("Gider Oluştur"),
+                  backgroundColor: Colors.blue[600],
+                ),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endFloat,
               );
             },
           ),
@@ -224,7 +238,8 @@ class GroupDetailsPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => EditGroupMembersPage(group: group),
+                              builder: (_) =>
+                                  EditGroupMembersPage(group: group),
                             ),
                           );
                         },

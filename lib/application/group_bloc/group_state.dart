@@ -8,6 +8,8 @@ final class GroupState extends Equatable {
     required this.requestsOption,
     required this.sendingAddGroupReq,
     required this.sendAddGroupReqFailureOrRequests,
+    required this.createExpenseFailOrSuccess,
+    required this.creatingExpense,
     required this.isSendingReqAnswer,
     this.sendAddGroupReqErrorMessage,
     this.isFetchingRequests = false,
@@ -20,10 +22,12 @@ final class GroupState extends Equatable {
       groupsOption: none(),
       getGroupRequestsFailureOrRequests: none(),
       sendAddGroupReqFailureOrRequests: none(),
+      createExpenseFailOrSuccess: none(),
       requestsOption: none(),
       isSendingReqAnswer: -1,
       sendAddGroupReqErrorMessage: null,
       isFetchingRequests: false,
+      creatingExpense: false,
       sendingAddGroupReq: false,
       isFetchingData: false,
     );
@@ -35,9 +39,11 @@ final class GroupState extends Equatable {
   getGroupRequestsFailureOrRequests;
   final Option<KtList<GroupRequestData>> requestsOption;
   final Option<bool> sendAddGroupReqFailureOrRequests;
+  final Option<bool> createExpenseFailOrSuccess;
   final bool isFetchingData;
   final bool isFetchingRequests;
   final bool sendingAddGroupReq;
+  final bool creatingExpense;
   final int isSendingReqAnswer;
   final String? sendAddGroupReqErrorMessage;
 
@@ -53,6 +59,8 @@ final class GroupState extends Equatable {
     bool? sendingAddGroupReq,
     int? isSendingReqAnswer,
     String? sendAddGroupReqErrorMessage,
+    Option<bool>? createExpenseFailOrSuccess,
+    bool? creatingExpense,
   }) {
     return GroupState(
       getGroupsFailureOrGroups:
@@ -71,6 +79,9 @@ final class GroupState extends Equatable {
       isSendingReqAnswer: isSendingReqAnswer ?? this.isSendingReqAnswer,
       sendAddGroupReqErrorMessage:
           sendAddGroupReqErrorMessage ?? this.sendAddGroupReqErrorMessage,
+      createExpenseFailOrSuccess:
+          createExpenseFailOrSuccess ?? this.createExpenseFailOrSuccess,
+      creatingExpense: creatingExpense ?? this.creatingExpense,
     );
   }
 
@@ -96,9 +107,11 @@ final class GroupState extends Equatable {
     requestsOption,
     isFetchingData,
     isFetchingRequests,
-    sendingAddGroupReq, // <-- ekle!
-    sendAddGroupReqFailureOrRequests, // <-- ekle!
+    sendingAddGroupReq, 
+    sendAddGroupReqFailureOrRequests, 
     isSendingReqAnswer,
     sendAddGroupReqErrorMessage ?? '',
+    creatingExpense,
+    createExpenseFailOrSuccess,
   ];
 }

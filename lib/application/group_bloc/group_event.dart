@@ -39,3 +39,12 @@ class _GroupEventSendAddRequest extends GroupEvent {
   final String userEmail; // true for accept, false for reject
   List<Object?> get props => [jwtToken, groupId, userEmail];
 }
+class _GroupEventCreateExpense extends GroupEvent {
+  _GroupEventCreateExpense({
+    required this.jwtToken,
+    required this.expenseData
+  });
+  final String jwtToken;
+  final CreateExpenseData expenseData; // true for accept, false for reject
+  List<Object?> get props => [jwtToken, expenseData];
+}

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kasa_app/core/errors/failure.dart';
 import 'package:kasa_app/domain/core/failure_or.dart';
 import 'package:kasa_app/domain/group/accept_data.dart';
+import 'package:kasa_app/domain/group/create_expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
@@ -28,6 +29,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       }
       if (event is _GroupEventSendAddRequest) {
         await _onSendAddRequest(event, emit);
+      }
+      if (event is _GroupEventCreateExpense) {
+        await _onCreateExpense(event, emit);
       }
     });
   }
@@ -66,6 +70,13 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
         userEmail: userEmail,
       ),
     );
+  }
+
+  void addCreateExpense({
+    required String jwtToken,
+    required CreateExpenseData expenseData,
+  }) {
+    add(_GroupEventCreateExpense(jwtToken: jwtToken, expenseData: expenseData));
   }
 
   Future<void> _onGetGroups(
@@ -226,6 +237,39 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
             sendingAddGroupReq: false,
             sendAddGroupReqFailureOrRequests: some(true),
             getGroupsFailureOrGroups: updatedGroups,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onCreateExpense(
+    _GroupEventCreateExpense event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(
+      state.copyWith(creatingExpense: true, createExpenseFailOrSuccess: none()),
+    );
+
+    final failOrResponse = await _groupRepository.createExpense(
+      jwtToken: event.jwtToken,
+      expenseData: event.expenseData,
+    );
+
+    failOrResponse.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            creatingExpense: false,
+            createExpenseFailOrSuccess: some(false),
+          ),
+        );
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            creatingExpense: false,
+            createExpenseFailOrSuccess: some(true),
           ),
         );
       },

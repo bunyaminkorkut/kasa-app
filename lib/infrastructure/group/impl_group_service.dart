@@ -5,6 +5,7 @@ import 'package:kasa_app/app_config.dart';
 import 'package:kasa_app/core/errors/failure.dart';
 import 'package:kasa_app/domain/core/failure_or.dart';
 import 'package:kasa_app/domain/group/accept_data.dart';
+import 'package:kasa_app/domain/group/create_expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
@@ -148,6 +149,31 @@ class GroupService implements IGroupRepository {
         "group_id": groupId.toString(),
         "added_member": memberEmail,
       }),
+    );
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final requests = GroupData.fromMap(jsonResponse);
+
+      return right(requests);
+    } else {
+      return left(ServerFailure('${response.body}'));
+    }
+  }
+
+    @override
+  Future<FailureOr<GroupData>> createExpense({
+    required String jwtToken,
+    required CreateExpenseData expenseData,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/add-group-expense'));
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode(expenseData.toJson()),
     );
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
