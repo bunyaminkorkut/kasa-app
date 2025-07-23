@@ -30,7 +30,7 @@ class GroupService implements IGroupRepository {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonResponse = jsonDecode(response.body);
+      final List<dynamic> jsonResponse = jsonDecode(response.body) ?? List.empty();
       final groups = KtList.from(
         jsonResponse.map((group) => GroupData.fromMap(group)),
       );

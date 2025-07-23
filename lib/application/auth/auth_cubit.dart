@@ -31,7 +31,6 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(isAuthenticated: true, jwt: jwt));
     } catch (e) {
       emit(state.copyWith(isAuthenticated: false, jwt: null));
-      // rethrow kaldırıldı - app çökmesin diye
     }
   }
 

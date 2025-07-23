@@ -76,17 +76,20 @@ class Expense extends Equatable {
 class ExpenseParticipant extends Equatable {
   const ExpenseParticipant({
     required this.userId,
+    required this.userName,
     required this.amountShare,
     required this.paymentStatus,
   });
 
   final String userId;
+  final String userName;
   final double amountShare;
   final String paymentStatus;
 
   factory ExpenseParticipant.fromMap(Map<String, dynamic> map) {
     return ExpenseParticipant(
       userId: map['user_id'] as String,
+      userName: map['user_name'] as String,
       amountShare: (map['amount_share'] as num).toDouble(),
       paymentStatus: map['payment_status'] as String,
     );
@@ -95,6 +98,7 @@ class ExpenseParticipant extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       'user_id': userId,
+      'user_name': userName,
       'amount_share': amountShare,
       'payment_status': paymentStatus,
     };
@@ -105,5 +109,6 @@ class ExpenseParticipant extends Equatable {
         userId,
         amountShare,
         paymentStatus,
+        userName,
       ];
 }

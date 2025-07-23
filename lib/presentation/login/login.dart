@@ -37,9 +37,9 @@ class _LoginPageState extends State<LoginPage> {
       await context.read<AuthCubit>().login(email, password);
       // Başarılı giriş AuthCubit state tarafından yönetilecek
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Giriş başarısız: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Giriş başarısız: $e')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -52,15 +52,15 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state.isAuthenticated) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Giriş başarılı')),
-          );
-          Navigator.pushReplacementNamed(context, '/home'); // Ana sayfaya yönlendir
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Giriş başarılı')));
+          Navigator.pushReplacementNamed(context, '/splash');
         } else {
           // AuthCubit'te errorMessage alanı varsa buradan göster
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Giriş hatası')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Giriş hatası')));
         }
       },
       child: Scaffold(
@@ -99,9 +99,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(
-                    builder: (context) => const RegisterPage(),
-                  ));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterPage(),
+                    ),
+                  );
                 },
                 child: _isLoading
                     ? const SizedBox(
