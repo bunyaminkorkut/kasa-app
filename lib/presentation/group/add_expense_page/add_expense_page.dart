@@ -105,8 +105,8 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
         return ExpenseUserData(
           userId: member.id,
           amount: _isSplitEqually
-              ? null
-              : 0, // Eğer eşit bölünüyor ise `null`, değilse özel miktar
+              ? (amount / selectedMembers.length)
+              : (amount / selectedMembers.length),
         );
       }).toList();
 
@@ -127,15 +127,35 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Gider Oluştur"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Form(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Gider Oluştur"),
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      elevation: 0,
+    ),
+    body: BlocListener<GroupBloc, GroupState>(
+      listenWhen: (previous, current) =>
+          previous.createExpenseFailOrSuccess != current.createExpenseFailOrSuccess,
+      listener: (context, state) {
+        state.createExpenseFailOrSuccess.fold(
+          () => null,
+          (success) {
+            if (success) {
+              Navigator.of(context).pop(); // Başarılıysa geri dön
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Gider oluşturulamadı. Lütfen tekrar deneyin."),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+        );
+      },
+      child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -161,12 +181,8 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                CurrencyInputFormatter(), // özel formatlayıcı
-              ],
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [CurrencyInputFormatter()],
               decoration: const InputDecoration(
                 labelText: 'Tutar',
                 hintText: '0,00',
@@ -175,22 +191,17 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
                 suffixText: 'TL',
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Tutar gerekli';
-                }
-
+                if (value == null || value.isEmpty) return 'Tutar gerekli';
                 final cleaned = value
                     .replaceAll('.', '')
                     .replaceAll(',', '.')
                     .replaceAll('₺', '')
                     .replaceAll('TL', '')
                     .trim();
-
                 final amount = double.tryParse(cleaned);
                 if (amount == null || amount <= 0) {
                   return 'Geçerli bir tutar giriniz';
                 }
-
                 return null;
               },
             ),
@@ -216,7 +227,7 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
                   });
                 },
               );
-            }).toList(),
+            }),
             const SizedBox(height: 16),
             CheckboxListTile(
               value: _isSplitEqually,
@@ -233,19 +244,31 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
               contentPadding: EdgeInsets.zero,
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _submitForm,
-              icon: const Icon(Icons.check),
-              label: const Text("Gideri Kaydet"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[600],
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
+            BlocBuilder<GroupBloc, GroupState>(
+              builder: (context, state) {
+                if (state.creatingExpense) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return ElevatedButton.icon(
+                  onPressed: _submitForm,
+                  icon: const Icon(Icons.check, color: Colors.white),
+                  label: const Text(
+                    "Gideri Kaydet",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[600],
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -265,11 +265,27 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
           ),
         );
       },
-      (response) {
+      (newExpense) {
+        final updatedGroups = state.getGroupsFailureOrGroups.map(
+          (either) => either.map((groupList) {
+            final updatedList = groupList.asList().map((group) {
+              if (group.id == newExpense.groupId) {
+                final updatedExpenses = group.expenses.toList();
+                updatedExpenses.insert(0, newExpense); // En üste ekle
+                return group.copyWith(expenses: updatedExpenses.toList());
+              }
+              return group;
+            }).toList();
+
+            return KtList.from(updatedList);
+          }),
+        );
+
         emit(
           state.copyWith(
             creatingExpense: false,
             createExpenseFailOrSuccess: some(true),
+            getGroupsFailureOrGroups: updatedGroups,
           ),
         );
       },

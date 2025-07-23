@@ -6,6 +6,7 @@ import 'package:kasa_app/core/errors/failure.dart';
 import 'package:kasa_app/domain/core/failure_or.dart';
 import 'package:kasa_app/domain/group/accept_data.dart';
 import 'package:kasa_app/domain/group/create_expense_data.dart';
+import 'package:kasa_app/domain/group/expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
@@ -161,7 +162,7 @@ class GroupService implements IGroupRepository {
   }
 
     @override
-  Future<FailureOr<GroupData>> createExpense({
+  Future<FailureOr<Expense>> createExpense({
     required String jwtToken,
     required CreateExpenseData expenseData,
   }) async {
@@ -175,9 +176,9 @@ class GroupService implements IGroupRepository {
       },
       body: jsonEncode(expenseData.toJson()),
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       final jsonResponse = jsonDecode(response.body);
-      final requests = GroupData.fromMap(jsonResponse);
+      final requests = Expense.fromMap(jsonResponse);
 
       return right(requests);
     } else {

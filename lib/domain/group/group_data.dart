@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:kasa_app/domain/group/expense_data.dart';
 import 'package:kasa_app/domain/group/sended_request_data.dart';
 import 'user_data.dart';
-import 'request_data.dart';
 
 class GroupData extends Equatable {
   const GroupData({
@@ -12,6 +12,7 @@ class GroupData extends Equatable {
     required this.members,
     required this.isAdmin,
     required this.pendingRequests,
+    required this.expenses,
   });
 
   final String name;
@@ -21,6 +22,7 @@ class GroupData extends Equatable {
   final List<UserData> members;
   final bool isAdmin;
   final List<GroupSendedRequestData> pendingRequests;
+  final List<Expense> expenses;
 
   GroupData copyWith({
     String? name,
@@ -30,6 +32,7 @@ class GroupData extends Equatable {
     List<UserData>? members,
     List<GroupSendedRequestData>? pendingRequests,
     bool? isAdmin,
+    List<Expense>? expenses,
   }) {
     return GroupData(
       name: name ?? this.name,
@@ -39,6 +42,7 @@ class GroupData extends Equatable {
       members: members ?? this.members,
       pendingRequests: pendingRequests ?? this.pendingRequests,
       isAdmin: isAdmin ?? this.isAdmin,
+      expenses: expenses ?? this.expenses,
     );
   }
 
@@ -51,41 +55,45 @@ class GroupData extends Equatable {
       'members': members.map((e) => e.toMap()).toList(),
       'pending_requests': pendingRequests.map((e) => e.toMap()).toList(),
       'is_admin': isAdmin,
+      'expenses': expenses.map((e) => e.toMap()).toList(),
     };
   }
 
   factory GroupData.fromMap(Map<String, dynamic> map) {
     return GroupData(
       name: map['name'] as String? ?? '',
-      id: map['id'] as int ?? 0,
+      id: map['id'] as int? ?? 0,
       createdDate: DateTime.fromMillisecondsSinceEpoch(
         (map['created_at'] as int) * 1000,
       ),
       creator: UserData.fromMap(map['creator'] as Map<String, dynamic>),
-      members:
-          (map['members'] as List?)
+      members: (map['members'] as List?)
               ?.map((e) => UserData.fromMap(e as Map<String, dynamic>))
               .toList() ??
           [],
-      pendingRequests:
-          (map['pending_requests'] as List?)
+      pendingRequests: (map['pending_requests'] as List?)
               ?.map(
-                (e) =>
-                    GroupSendedRequestData.fromMap(e as Map<String, dynamic>),
+                (e) => GroupSendedRequestData.fromMap(e as Map<String, dynamic>),
               )
               .toList() ??
           [],
       isAdmin: map['is_admin'] as bool? ?? false,
+      expenses: (map['expenses'] as List?)
+              ?.map((e) => Expense.fromMap(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
-    name,
-    createdDate,
-    creator,
-    members,
-    pendingRequests,
-  ];
+        id,
+        name,
+        createdDate,
+        creator,
+        members,
+        pendingRequests,
+        expenses,
+      ];
 }
+
