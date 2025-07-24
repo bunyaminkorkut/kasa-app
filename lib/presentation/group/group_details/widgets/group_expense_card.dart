@@ -62,90 +62,120 @@ class GroupExpensesCard extends StatelessWidget {
                 color: Colors.black87,
               ),
             ),
-            childrenPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            children: group.expenses.map((expense) {
+            childrenPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 12,
+            ),
+            children: group.expenses.asMap().entries.map((entry) {
+              final index = entry.key;
+              final expense = entry.value;
               final formattedDate = DateFormat('dd MMM yyyy').format(
                 DateTime.fromMillisecondsSinceEpoch(expense.paymentDate * 1000),
               );
 
-              return InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ExpenseDetailPage(expense: expense),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
+              return Column(
+                children: [
+                  InkWell(
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          expense.paymentTitle,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ExpenseDetailPage(expense: expense),
                         ),
-                        subtitle: expense.descriptionNote.isNotEmpty
-                            ? Text(expense.descriptionNote)
-                            : null,
-                        trailing: Text(
-                          "${expense.amount.toStringAsFixed(2)} ₺",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.orange,
-                          ),
-                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 12,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, top: 4, right: 16),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_today,
-                                size: 14, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              formattedDate,
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey[700]),
-                            ),
-                            const SizedBox(width: 12),
-                            const Icon(Icons.person, size: 14, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              "Ödeyen: ${expense.payerName}",
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey[700]),
-                            ),
-                          ],
-                        ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      if (expense.billImageUrl.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16, top: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              expense.billImageUrl,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.broken_image),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              expense.paymentTitle,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: expense.descriptionNote.isNotEmpty
+                                ? Text(expense.descriptionNote)
+                                : null,
+                            trailing: Text(
+                              "${expense.amount.toStringAsFixed(2)} ₺",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.orange,
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              top: 4,
+                              right: 16,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Icon(
+                                  Icons.person,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Ödeyen: ${expense.payerName}",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (expense.billImageUrl.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16, top: 12),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  expense.billImageUrl,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.broken_image),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  // 🔹 Araya boşluk eklendi, sonuncuda eklenmesin diye koşul koyduk
+                  if (index != group.expenses.length - 1)
+                    const SizedBox(height: 6),
+                ],
               );
             }).toList(),
           ),

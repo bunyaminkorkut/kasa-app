@@ -9,6 +9,7 @@ import 'package:kasa_app/domain/group/request_data.dart';
 import 'package:kt_dart/collection.dart';
 
 abstract class IGroupRepository {
+  Future<FailureOr<KtList<GroupData>>> createGroup({required String jwtToken,required String groupName});
   Future<FailureOr<KtList<GroupData>>> getGroups({required String jwtToken});
   Future<FailureOr<KtList<GroupRequestData>>> getRequests({required String jwtToken});
   Future<FailureOr<AcceptResponse>> acceptRequest({required String jwtToken, required int requestId});

@@ -2,6 +2,7 @@ part of 'group_bloc.dart';
 
 final class GroupState extends Equatable {
   const GroupState({
+    required this.createGroupFailOrSuccess,
     required this.getGroupsFailureOrGroups,
     required this.groupsOption,
     required this.getGroupRequestsFailureOrRequests,
@@ -14,11 +15,13 @@ final class GroupState extends Equatable {
     this.sendAddGroupReqErrorMessage,
     this.isFetchingRequests = false,
     this.isFetchingData = false,
+    this.isCreatingGroup = false,
   });
 
   factory GroupState.initial() {
     return GroupState(
       getGroupsFailureOrGroups: none(),
+      createGroupFailOrSuccess: none(),
       groupsOption: none(),
       getGroupRequestsFailureOrRequests: none(),
       sendAddGroupReqFailureOrRequests: none(),
@@ -30,6 +33,7 @@ final class GroupState extends Equatable {
       creatingExpense: false,
       sendingAddGroupReq: false,
       isFetchingData: false,
+      isCreatingGroup: false,
     );
   }
 
@@ -39,11 +43,13 @@ final class GroupState extends Equatable {
   getGroupRequestsFailureOrRequests;
   final Option<KtList<GroupRequestData>> requestsOption;
   final Option<bool> sendAddGroupReqFailureOrRequests;
+  final Option<bool> createGroupFailOrSuccess;
   final Option<bool> createExpenseFailOrSuccess;
   final bool isFetchingData;
   final bool isFetchingRequests;
   final bool sendingAddGroupReq;
   final bool creatingExpense;
+  final bool isCreatingGroup;
   final int isSendingReqAnswer;
   final String? sendAddGroupReqErrorMessage;
 
@@ -54,8 +60,10 @@ final class GroupState extends Equatable {
     getGroupRequestsFailureOrRequests,
     Option<KtList<GroupRequestData>>? requestsOption,
     Option<bool>? sendAddGroupReqFailureOrRequests,
+    Option<bool>? createGroupFailOrSuccess,
     bool? isFetchingData,
     bool? isFetchingRequests,
+    bool? isCreatingGroup,
     bool? sendingAddGroupReq,
     int? isSendingReqAnswer,
     String? sendAddGroupReqErrorMessage,
@@ -82,6 +90,8 @@ final class GroupState extends Equatable {
       createExpenseFailOrSuccess:
           createExpenseFailOrSuccess ?? this.createExpenseFailOrSuccess,
       creatingExpense: creatingExpense ?? this.creatingExpense,
+      createGroupFailOrSuccess: createGroupFailOrSuccess ?? this.createGroupFailOrSuccess,
+      isCreatingGroup: isCreatingGroup ?? this.isCreatingGroup
     );
   }
 
@@ -113,5 +123,7 @@ final class GroupState extends Equatable {
     sendAddGroupReqErrorMessage ?? '',
     creatingExpense,
     createExpenseFailOrSuccess,
+    createGroupFailOrSuccess,
+    isCreatingGroup,
   ];
 }

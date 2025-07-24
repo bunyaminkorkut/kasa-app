@@ -33,11 +33,18 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       if (event is _GroupEventCreateExpense) {
         await _onCreateExpense(event, emit);
       }
+      if (event is _GroupEventCreateGroup) {
+        await _onCreateGroup(event, emit);
+      }
     });
   }
 
   void addFetchGroups({required String jwtToken}) {
     add(_GroupEventGetMyGroups(jwtToken: jwtToken));
+  }
+
+  void addCreateGroup({required String jwtToken, required String groupName}) {
+    add(_GroupEventCreateGroup(jwtToken: jwtToken, groupName: groupName));
   }
 
   void addFetchGroupRequests({required String jwtToken}) {
@@ -77,6 +84,36 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     required CreateExpenseData expenseData,
   }) {
     add(_GroupEventCreateExpense(jwtToken: jwtToken, expenseData: expenseData));
+  }
+
+  Future<void> _onCreateGroup(
+    _GroupEventCreateGroup event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(state.copyWith(isCreatingGroup: true));
+
+    final failOrGroups = await _groupRepository.createGroup(
+      jwtToken: event.jwtToken,
+      groupName: event.groupName,
+    );
+
+    final newState = await failOrGroups.fold(
+      (failure) async {
+        return state.copyWith(
+          createGroupFailOrSuccess: some(false),
+          isCreatingGroup: false,
+        );
+      },
+      (groups) async {
+        return state.copyWith(
+          createGroupFailOrSuccess: some(true),
+          getGroupsFailureOrGroups: some(right(groups)),
+          isCreatingGroup: false,
+        );
+      },
+    );
+
+    emit(newState);
   }
 
   Future<void> _onGetGroups(

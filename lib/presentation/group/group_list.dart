@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/presentation/group/widgets/create_group_popup.dart';
 import 'package:kasa_app/presentation/group/widgets/group_card.dart';
 import 'package:kt_dart/collection.dart';
 
@@ -19,6 +20,26 @@ class GroupListPage extends StatelessWidget {
       ).showSnackBar(const SnackBar(content: Text('No JWT found')));
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
+  }
+
+  void _showCreateGroupDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return CreateGroupDialog(
+          onCreate: (groupName) async {
+            final jwt = await secureStorage.read(key: 'jwt');
+            if (jwt != null && jwt.isNotEmpty) {
+              context.read<GroupBloc>().addCreateGroup(
+                jwtToken: jwt,
+                groupName: groupName,
+              );
+              await _refreshGroups(context);
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -45,7 +66,7 @@ class GroupListPage extends StatelessWidget {
                     }
 
                     return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(), // zorunlu
+                      physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: groups.size,
                       itemBuilder: (context, index) {
                         final group = groups[index];
@@ -60,6 +81,11 @@ class GroupListPage extends StatelessWidget {
             return const Center(child: Text('No data'));
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCreateGroupDialog(context),
+        child: const Icon(Icons.add),
+        tooltip: 'Grup Oluştur',
       ),
     );
   }

@@ -14,6 +14,38 @@ import 'package:kt_dart/collection.dart';
 
 class GroupService implements IGroupRepository {
   @override
+  Future<FailureOr<KtList<GroupData>>> createGroup({
+    required String jwtToken,
+    required String groupName,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/create-group'));
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({'group_name': groupName}),
+    );
+    if (response.statusCode == 201) {
+      final List<dynamic> jsonResponse =
+          jsonDecode(response.body) ?? List.empty();
+      final groups = KtList.from(
+        jsonResponse.map((group) => GroupData.fromMap(group)),
+      );
+      return right(groups);
+    } else {
+      return left(
+        ServerFailure(
+          'Failed to fetch groups: ${response.statusCode} - ${response.body}',
+        ),
+      );
+    }
+  }
+
+  @override
   Future<FailureOr<KtList<GroupData>>> getGroups({
     required String jwtToken,
   }) async {
@@ -30,7 +62,8 @@ class GroupService implements IGroupRepository {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonResponse = jsonDecode(response.body) ?? List.empty();
+      final List<dynamic> jsonResponse =
+          jsonDecode(response.body) ?? List.empty();
       final groups = KtList.from(
         jsonResponse.map((group) => GroupData.fromMap(group)),
       );
@@ -161,7 +194,7 @@ class GroupService implements IGroupRepository {
     }
   }
 
-    @override
+  @override
   Future<FailureOr<Expense>> createExpense({
     required String jwtToken,
     required CreateExpenseData expenseData,
