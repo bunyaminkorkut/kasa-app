@@ -84,7 +84,8 @@ class GroupListPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateGroupDialog(context),
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue[600],
+        child: const Icon(Icons.add, color: Colors.white,),
         tooltip: 'Grup Oluştur',
       ),
     );

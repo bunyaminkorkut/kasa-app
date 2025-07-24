@@ -195,7 +195,7 @@ class GroupService implements IGroupRepository {
   }
 
   @override
-  Future<FailureOr<Expense>> createExpense({
+  Future<FailureOr<CreateExpenseResponse>> createExpense({
     required String jwtToken,
     required CreateExpenseData expenseData,
   }) async {
@@ -210,10 +210,11 @@ class GroupService implements IGroupRepository {
       body: jsonEncode(expenseData.toJson()),
     );
     if (response.statusCode == 201) {
+      print(response);
       final jsonResponse = jsonDecode(response.body);
-      final requests = Expense.fromMap(jsonResponse);
+      final expenseRes = CreateExpenseResponse.fromJson(jsonResponse);
 
-      return right(requests);
+      return right(expenseRes);
     } else {
       return left(ServerFailure('${response.body}'));
     }

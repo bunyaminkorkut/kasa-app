@@ -306,10 +306,14 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
         final updatedGroups = state.getGroupsFailureOrGroups.map(
           (either) => either.map((groupList) {
             final updatedList = groupList.asList().map((group) {
-              if (group.id == newExpense.groupId) {
+              if (group.id == newExpense.expense.groupId) {
                 final updatedExpenses = group.expenses.toList();
-                updatedExpenses.insert(0, newExpense); // En üste ekle
-                return group.copyWith(expenses: updatedExpenses.toList());
+                updatedExpenses.insert(0, newExpense.expense); // En üste ekle
+                return group.copyWith(
+                  expenses: updatedExpenses.toList(),
+                  debts: newExpense.debts,
+                  credits: newExpense.credits,
+                );
               }
               return group;
             }).toList();

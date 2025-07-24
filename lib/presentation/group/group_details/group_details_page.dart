@@ -5,6 +5,7 @@ import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/presentation/group/add_expense_page/add_expense_page.dart';
 import 'package:kasa_app/presentation/group/edit_group_members/group_members.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/presentation/group/group_details/widgets/group_checkout_card.dart';
 import 'package:kasa_app/presentation/group/group_details/widgets/group_expense_card.dart';
 import 'package:kasa_app/presentation/group/group_details/widgets/group_members_card.dart';
 
@@ -52,6 +53,8 @@ class GroupDetailsPage extends StatelessWidget {
                       const SizedBox(height: 20),
                       GroupExpensesCard(group: group),
                       const SizedBox(height: 20),
+                      GroupCheckoutCard(group: group),
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -64,8 +67,12 @@ class GroupDetailsPage extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text("Gider Oluştur"),
+                  icon: const Icon(Icons.add,
+                  color: Colors.white,),
+                  label: const Text("Gider Oluştur"
+                  ,style: TextStyle(
+                    color: Colors.white
+                  ),),
                   backgroundColor: Colors.blue[600],
                 ),
                 floatingActionButtonLocation:

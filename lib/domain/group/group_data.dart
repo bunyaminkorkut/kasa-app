@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:kasa_app/domain/group/checkout_data.dart';
 import 'package:kasa_app/domain/group/expense_data.dart';
 import 'package:kasa_app/domain/group/sended_request_data.dart';
 import 'user_data.dart';
@@ -13,6 +14,8 @@ class GroupData extends Equatable {
     required this.isAdmin,
     required this.pendingRequests,
     required this.expenses,
+    required this.debts,
+    required this.credits,
   });
 
   final String name;
@@ -23,6 +26,8 @@ class GroupData extends Equatable {
   final bool isAdmin;
   final List<GroupSendedRequestData> pendingRequests;
   final List<Expense> expenses;
+  final List<DebtData> debts;
+  final List<CreditData> credits;
 
   GroupData copyWith({
     String? name,
@@ -30,9 +35,11 @@ class GroupData extends Equatable {
     DateTime? createdDate,
     UserData? creator,
     List<UserData>? members,
-    List<GroupSendedRequestData>? pendingRequests,
     bool? isAdmin,
+    List<GroupSendedRequestData>? pendingRequests,
     List<Expense>? expenses,
+    List<DebtData>? debts,
+    List<CreditData>? credits,
   }) {
     return GroupData(
       name: name ?? this.name,
@@ -40,9 +47,11 @@ class GroupData extends Equatable {
       createdDate: createdDate ?? this.createdDate,
       creator: creator ?? this.creator,
       members: members ?? this.members,
-      pendingRequests: pendingRequests ?? this.pendingRequests,
       isAdmin: isAdmin ?? this.isAdmin,
+      pendingRequests: pendingRequests ?? this.pendingRequests,
       expenses: expenses ?? this.expenses,
+      debts: debts ?? this.debts,
+      credits: credits ?? this.credits,
     );
   }
 
@@ -56,6 +65,8 @@ class GroupData extends Equatable {
       'pending_requests': pendingRequests.map((e) => e.toMap()).toList(),
       'is_admin': isAdmin,
       'expenses': expenses.map((e) => e.toMap()).toList(),
+      'debts': debts.map((e) => e.toJson()).toList(),
+      'credits': credits.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -72,14 +83,20 @@ class GroupData extends Equatable {
               .toList() ??
           [],
       pendingRequests: (map['pending_requests'] as List?)
-              ?.map(
-                (e) => GroupSendedRequestData.fromMap(e as Map<String, dynamic>),
-              )
+              ?.map((e) => GroupSendedRequestData.fromMap(e as Map<String, dynamic>))
               .toList() ??
           [],
       isAdmin: map['is_admin'] as bool? ?? false,
       expenses: (map['expenses'] as List?)
               ?.map((e) => Expense.fromMap(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      debts: (map['debts'] as List?)
+              ?.map((e) => DebtData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      credits: (map['credits'] as List?)
+              ?.map((e) => CreditData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
     );
@@ -94,6 +111,8 @@ class GroupData extends Equatable {
         members,
         pendingRequests,
         expenses,
+        debts,
+        credits,
+        isAdmin,
       ];
 }
-
