@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:kasa_app/infrastructure/auth/impl_auth_service.dart'; // AuthService importu
+import 'package:kasa_app/infrastructure/auth/impl_auth_service.dart';
 
 class AuthState {
   final bool isAuthenticated;
@@ -18,12 +18,12 @@ class AuthState {
 
 class AuthCubit extends Cubit<AuthState> {
   final FlutterSecureStorage secureStorage;
-  final AuthService _authService = AuthService(); // içsel örnekleme
+  final AuthService _authService = AuthService();
 
   AuthCubit({required this.secureStorage})
-      : super(const AuthState(isAuthenticated: false));
+    : super(const AuthState(isAuthenticated: false));
 
-  /// Giriş işlemi
+  /// E-posta/şifre ile giriş
   Future<void> login(String email, String password) async {
     try {
       final jwt = await _authService.login(email: email, password: password);
@@ -34,7 +34,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Kayıt işlemi
+  /// Kayıt
   Future<void> register({
     required String email,
     required String password,
@@ -65,7 +65,20 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Çıkış işlemi
+  /// Google ile giriş
+  Future<void> loginWithGoogle() async {
+    try {
+      final jwt = await _authService.signInWithGoogle();
+      print(jwt);
+      await secureStorage.write(key: 'jwt', value: jwt);
+      emit(state.copyWith(isAuthenticated: true, jwt: jwt));
+    } catch (e) {
+      print(e);
+      emit(state.copyWith(isAuthenticated: false, jwt: null));
+    }
+  }
+
+  /// Çıkış
   Future<void> logout() async {
     await secureStorage.delete(key: 'jwt');
     emit(state.copyWith(isAuthenticated: false, jwt: null));

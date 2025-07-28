@@ -57,7 +57,6 @@ class _LoginPageState extends State<LoginPage> {
           ).showSnackBar(const SnackBar(content: Text('Giriş başarılı')));
           Navigator.pushReplacementNamed(context, '/splash');
         } else {
-          // AuthCubit'te errorMessage alanı varsa buradan göster
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Giriş hatası')));
@@ -116,6 +115,27 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       )
                     : const Text('Create Account'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  await context.read<AuthCubit>().loginWithGoogle();
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Login with Google'),
               ),
             ],
           ),
