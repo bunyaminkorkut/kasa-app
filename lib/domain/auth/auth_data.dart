@@ -14,6 +14,15 @@ class AuthData extends Equatable {
     required this.iban,
   });
 
+  factory AuthData.fromMap(Map<String, dynamic> map) {
+    return AuthData(
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
+      fullName: map['fullName'] ?? '',
+      iban: map['iban'] ?? '',
+    );
+  }
+
   @override
   List<Object> get props => [email, password, fullName, iban];
 

@@ -6,8 +6,14 @@ import 'package:kasa_app/presentation/group/widgets/create_group_popup.dart';
 import 'package:kasa_app/presentation/group/widgets/group_card.dart';
 import 'package:kt_dart/collection.dart';
 
-class GroupListPage extends StatelessWidget {
+class GroupListPage extends StatefulWidget {
   const GroupListPage({super.key});
+
+  @override
+  State<GroupListPage> createState() => _GroupListPageState();
+}
+
+class _GroupListPageState extends State<GroupListPage> {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   Future<void> _refreshGroups(BuildContext context) async {
@@ -15,9 +21,9 @@ class GroupListPage extends StatelessWidget {
     if (jwt != null && jwt.isNotEmpty) {
       context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No JWT found')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No JWT found')),
+      );
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
   }
@@ -31,10 +37,9 @@ class GroupListPage extends StatelessWidget {
             final jwt = await secureStorage.read(key: 'jwt');
             if (jwt != null && jwt.isNotEmpty) {
               context.read<GroupBloc>().addCreateGroup(
-                jwtToken: jwt,
-                groupName: groupName,
-              );
-              await _refreshGroups(context);
+                    jwtToken: jwt,
+                    groupName: groupName,
+                  );
             }
           },
         );
@@ -44,49 +49,69 @@ class GroupListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Groups')),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshGroups(context),
-        child: BlocBuilder<GroupBloc, GroupState>(
-          builder: (context, state) {
-            if (state.isFetchingData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state.getGroupsFailureOrGroups.isSome()) {
-              return state.getGroupsFailureOrGroups.fold(
-                () => const SizedBox.shrink(),
-                (either) => either.fold(
-                  (failure) =>
-                      Center(child: Text('Error: ${failure.toString()}')),
-                  (groups) {
-                    if (groups.isEmpty()) {
-                      return const Center(child: Text('No groups found'));
-                    }
-
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: groups.size,
-                      itemBuilder: (context, index) {
-                        final group = groups[index];
-                        return GroupCard(group: group);
-                      },
-                    );
-                  },
-                ),
+    return BlocListener<GroupBloc, GroupState>(
+      listenWhen: (previous, current) =>
+          previous.createGroupFailOrSuccess != current.createGroupFailOrSuccess,
+      listener: (context, state) async {
+        state.createGroupFailOrSuccess?.fold(
+          () {},
+          (success) async {
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Grup başarıyla oluşturuldu')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Grup oluşturulamadı')),
               );
             }
-
-            return const Center(child: Text('No data'));
           },
+        );
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('My Groups')),
+        body: RefreshIndicator(
+          onRefresh: () => _refreshGroups(context),
+          child: BlocBuilder<GroupBloc, GroupState>(
+            builder: (context, state) {
+              if (state.isFetchingData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.getGroupsFailureOrGroups.isSome()) {
+                return state.getGroupsFailureOrGroups.fold(
+                  () => const SizedBox.shrink(),
+                  (either) => either.fold(
+                    (failure) =>
+                        Center(child: Text('Error: ${failure.toString()}')),
+                    (groups) {
+                      if (groups.isEmpty()) {
+                        return const Center(child: Text('No groups found'));
+                      }
+
+                      return ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: groups.size,
+                        itemBuilder: (context, index) {
+                          final group = groups[index];
+                          return GroupCard(group: group);
+                        },
+                      );
+                    },
+                  ),
+                );
+              }
+
+              return const Center(child: Text('No data'));
+            },
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateGroupDialog(context),
-        backgroundColor: Colors.blue[600],
-        child: const Icon(Icons.add, color: Colors.white,),
-        tooltip: 'Grup Oluştur',
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showCreateGroupDialog(context),
+          backgroundColor: Colors.blue[600],
+          child: const Icon(Icons.add, color: Colors.white),
+          tooltip: 'Grup Oluştur',
+        ),
       ),
     );
   }

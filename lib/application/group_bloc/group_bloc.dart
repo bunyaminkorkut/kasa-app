@@ -43,7 +43,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     add(_GroupEventGetMyGroups(jwtToken: jwtToken));
   }
 
-  void addCreateGroup({required String jwtToken, required String groupName}) {
+  void addCreateGroup({required String jwtToken, required String groupName}) async {
     add(_GroupEventCreateGroup(jwtToken: jwtToken, groupName: groupName));
   }
 
@@ -90,7 +90,12 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     _GroupEventCreateGroup event,
     Emitter<GroupState> emit,
   ) async {
-    emit(state.copyWith(isCreatingGroup: true));
+    emit(
+      state.copyWith(
+        isCreatingGroup: true,
+        createGroupFailOrSuccess: none(),
+      ),
+    );
 
     final failOrGroups = await _groupRepository.createGroup(
       jwtToken: event.jwtToken,

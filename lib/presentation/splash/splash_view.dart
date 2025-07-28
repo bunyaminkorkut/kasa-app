@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kasa_app/application/auth/auth_cubit.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 import 'package:kasa_app/presentation/home/home.dart';
 import 'package:kasa_app/presentation/login/login.dart';
@@ -41,6 +42,7 @@ class _KasaSplashViewState extends State<KasaSplashView>
         if (mounted) {
           context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
           context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
+          context.read<AuthCubit>().getUser(jwt);
         }
       } else {
         if (!_navigated && mounted) {
