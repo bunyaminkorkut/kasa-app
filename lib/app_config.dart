@@ -18,7 +18,7 @@ class KasaAppConfig {
     this.appVersion = 1,
     this.meta = '123',
     this.scateSDK = '',
-    this.apiHost = 'http://35.157.115.166',
+    this.apiHost = 'https://kasa.bunyamin.app',
     this.wsHost = 'a',
     this.appName = 'KASA',
     this.adjustSDK = 'a',

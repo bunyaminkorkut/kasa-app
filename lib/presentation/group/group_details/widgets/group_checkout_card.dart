@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kasa_app/domain/group/checkout_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 
@@ -139,8 +140,157 @@ class GroupCheckoutCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: ElevatedButton(
-                            onPressed: () {
-                              print('${entry.fullname} için toplam borç ödemesi başlatıldı: $payAmount ₺');
+                            onPressed: () async {
+                              await showDialog(
+                                context: context,
+                                builder: (ctx) {
+                                  return AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    title: const Text("Ödeme Bilgileri"),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Clipboard.setData(
+                                              ClipboardData(
+                                                text: entry.fullname,
+                                              ),
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  "Alıcı adı kopyalandı",
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Row(
+                                            children: [
+                                              const Text("Alıcı: "),
+                                              Expanded(
+                                                child: Text(
+                                                  entry.fullname,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.copy,
+                                                size: 18,
+                                                color: Colors.grey,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        if (entry.iban.isNotEmpty)
+                                          GestureDetector(
+                                            onTap: () {
+                                              Clipboard.setData(
+                                                ClipboardData(text: entry.iban),
+                                              );
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    "IBAN kopyalandı",
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                const Text("IBAN: "),
+                                                Expanded(
+                                                  child: Text(
+                                                    entry.iban,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const Icon(
+                                                  Icons.copy,
+                                                  size: 18,
+                                                  color: Colors.grey,
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        else
+                                          const Text(
+                                            "IBAN bilgisi mevcut değil.",
+                                          ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text("İptal"),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          Navigator.pop(
+                                            ctx,
+                                          ); // İlk popup'ı kapat
+
+                                          // İkinci popup: emin misin?
+                                          final confirm = await showDialog<bool>(
+                                            context: context,
+                                            builder: (ctx) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                ),
+                                                title: const Text(
+                                                  "Emin misiniz?",
+                                                ),
+                                                content: const Text(
+                                                  "Bu işlemi onaylıyor musunuz? Ödeme yaptığınız varsayılacaktır.",
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                          ctx,
+                                                          false,
+                                                        ),
+                                                    child: const Text("Vazgeç"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                          ctx,
+                                                          true,
+                                                        ),
+                                                    child: const Text("Eminim"),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          if (confirm == true) {
+                                            print("Ödeme onaylandı: ${group.id} - ${entry.userId}");
+                                          }
+                                        },
+                                        child: const Text("Ödemeyi Onayla"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.redAccent,
@@ -148,9 +298,13 @@ class GroupCheckoutCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
                             ),
-                            child: Text("Öde ${payAmount.toStringAsFixed(2)} ₺"),
+                            child: Text(
+                              "Öde ${payAmount.toStringAsFixed(2)} ₺",
+                            ),
                           ),
                         ),
 
