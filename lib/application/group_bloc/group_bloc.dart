@@ -36,6 +36,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       if (event is _GroupEventCreateGroup) {
         await _onCreateGroup(event, emit);
       }
+      if (event is GroupEventPayExpense) {
+        await _onPayExpense(event, emit);
+      }
     });
   }
 
@@ -43,7 +46,10 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     add(_GroupEventGetMyGroups(jwtToken: jwtToken));
   }
 
-  void addCreateGroup({required String jwtToken, required String groupName}) async {
+  void addCreateGroup({
+    required String jwtToken,
+    required String groupName,
+  }) async {
     add(_GroupEventCreateGroup(jwtToken: jwtToken, groupName: groupName));
   }
 
@@ -86,15 +92,26 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     add(_GroupEventCreateExpense(jwtToken: jwtToken, expenseData: expenseData));
   }
 
+  void addPayExpense({
+    required String jwtToken,
+    required String sendedUserId,
+    required int groupId,
+  }) {
+    add(
+      GroupEventPayExpense(
+        jwtToken: jwtToken,
+        sendedUserId: sendedUserId,
+        groupId: groupId,
+      ),
+    );
+  }
+
   Future<void> _onCreateGroup(
     _GroupEventCreateGroup event,
     Emitter<GroupState> emit,
   ) async {
     emit(
-      state.copyWith(
-        isCreatingGroup: true,
-        createGroupFailOrSuccess: none(),
-      ),
+      state.copyWith(isCreatingGroup: true, createGroupFailOrSuccess: none()),
     );
 
     final failOrGroups = await _groupRepository.createGroup(
@@ -331,6 +348,65 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
           state.copyWith(
             creatingExpense: false,
             createExpenseFailOrSuccess: some(true),
+            getGroupsFailureOrGroups: updatedGroups,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onPayExpense(
+    GroupEventPayExpense event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(
+      state.copyWith(isPayingExpense: true, payExpenseFailOrSuccess: none()),
+    );
+
+    final failOrResponse = await _groupRepository.payExpense(
+      jwtToken: event.jwtToken,
+      sendedUserId: event.sendedUserId,
+      groupId: event.groupId,
+    );
+
+    failOrResponse.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            isPayingExpense: false,
+            payExpenseFailOrSuccess: some(false),
+          ),
+        );
+      },
+      (response) {
+        final updatedGroups = state.getGroupsFailureOrGroups.map(
+          (either) => either.map((groupList) {
+            final updatedList = groupList.asList().map((group) {
+              if (group.id == event.groupId) {
+                final updatedCredits = group.credits.toList();
+                updatedCredits.removeWhere(
+                  (credit) => credit.userId == event.sendedUserId,
+                );
+                final updatedDebts = group.debts.toList();
+                updatedDebts.removeWhere(
+                  (debt) => debt.userId == event.sendedUserId,
+                );
+                return group.copyWith(
+                  credits: updatedCredits,
+                  debts: updatedDebts,
+                );
+              }
+              return group;
+            }).toList();
+
+            return KtList.from(updatedList);
+          }),
+        );
+
+        emit(
+          state.copyWith(
+            isPayingExpense: false,
+            payExpenseFailOrSuccess: some(true),
             getGroupsFailureOrGroups: updatedGroups,
           ),
         );

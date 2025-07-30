@@ -219,4 +219,32 @@ class GroupService implements IGroupRepository {
       return left(ServerFailure('${response.body}'));
     }
   }
+
+  @override
+  Future<FailureOr<String>> payExpense({
+    required String jwtToken,
+    required int groupId,
+    required String sendedUserId,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/pay-group-expense'));
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({
+        "group_id": groupId,
+        "sended_user_id": sendedUserId,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+
+      return right(jsonResponse['message'] as String);
+    } else {
+      return left(ServerFailure('${response.body}'));
+    }
+  }
 }

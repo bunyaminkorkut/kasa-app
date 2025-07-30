@@ -59,3 +59,15 @@ class _GroupEventCreateGroup extends GroupEvent {
   final String groupName; // true for accept, false for reject
   List<Object?> get props => [jwtToken, groupName];
 }
+
+class GroupEventPayExpense extends GroupEvent {
+  const GroupEventPayExpense({
+    required this.jwtToken,
+    required this.groupId,
+    required this.sendedUserId,
+  });
+  final String jwtToken;
+  final int groupId;
+  final String sendedUserId;
+  List<Object?> get props => [jwtToken, groupId, sendedUserId];
+}

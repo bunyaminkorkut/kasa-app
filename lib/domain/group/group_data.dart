@@ -92,11 +92,13 @@ class GroupData extends Equatable {
               .toList() ??
           [],
       debts: (map['debts'] as List?)
-              ?.map((e) => DebtData.fromJson(e as Map<String, dynamic>))
+              ?.where((e) => (e as Map<String, dynamic>)['status'] != 'paid')
+              .map((e) => DebtData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       credits: (map['credits'] as List?)
-              ?.map((e) => CreditData.fromJson(e as Map<String, dynamic>))
+              ?.where((e) => (e as Map<String, dynamic>)['status'] != 'paid')
+              .map((e) => CreditData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
     );
