@@ -3,7 +3,8 @@
 
     <!-- Kamera izni -->
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Gerekirse diğer izinler buraya -->
     <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
     <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
@@ -43,7 +44,11 @@
         <!-- Flutter plugin için gerekli meta-data -->
         <meta-data
             android:name="flutterEmbedding"
-            android:value="2" />
+            android:value="2" />ü
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="default_channel" />
+
     </application>
 
     <!-- Android 11+ için dış uygulamaları sorgulamak gerekiyorsa -->
