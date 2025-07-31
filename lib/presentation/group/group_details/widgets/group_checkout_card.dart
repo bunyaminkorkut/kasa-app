@@ -322,9 +322,15 @@ class GroupCheckoutCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Text(
-          "Henüz borç/alacak kaydı yok",
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+        child: Row(
+          children: [
+            Icon(Icons.credit_card, color: Colors.grey[500]),
+            const SizedBox(width: 12),
+            Text(
+              "Henüz borç/alacak bulunmuyor",
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            ),
+          ],
         ),
       ),
     );
