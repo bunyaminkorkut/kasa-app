@@ -67,12 +67,11 @@ class GroupDetailsPage extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.add,
-                  color: Colors.white,),
-                  label: const Text("Gider Oluştur"
-                  ,style: TextStyle(
-                    color: Colors.white
-                  ),),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text(
+                    "Gider Oluştur",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   backgroundColor: Colors.blue[600],
                 ),
                 floatingActionButtonLocation:
@@ -87,6 +86,10 @@ class GroupDetailsPage extends StatelessWidget {
 
   Widget _buildGroupInfoCard(GroupData group) {
     final formattedDate = DateFormat('dd MMMM yyyy').format(group.createdDate);
+    final totalExpense = group.expenses.fold<double>(
+      0,
+      (sum, expense) => sum + expense.amount,
+    );
 
     return Card(
       elevation: 2,
@@ -123,6 +126,7 @@ class GroupDetailsPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+
             _buildInfoRow(
               Icons.person_outline,
               "Kurucu",
@@ -130,11 +134,18 @@ class GroupDetailsPage extends StatelessWidget {
               group.creator.email,
             ),
             const SizedBox(height: 16),
+
             _buildInfoRow(
               Icons.calendar_today_outlined,
               "Oluşturulma",
               formattedDate,
-              null,
+            ),
+            const SizedBox(height: 16),
+
+            _buildInfoRow(
+              Icons.receipt_long_outlined,
+              "Toplam Harcama",
+              "${totalExpense.toStringAsFixed(2)} ₺",
             ),
           ],
         ),
@@ -145,13 +156,16 @@ class GroupDetailsPage extends StatelessWidget {
   Widget _buildInfoRow(
     IconData icon,
     String label,
-    String value,
+    String value, [
     String? subtitle,
-  ) {
+  ]) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
+        Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Icon(icon, size: 20, color: Colors.grey[600]),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

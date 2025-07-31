@@ -143,11 +143,16 @@ class ExpenseDetailPage extends StatelessWidget {
                 color: isPayer ? Colors.green[100] : null,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: isPayer ? Colors.green : null,
+                    backgroundColor: isPayer
+                        ? Colors.green
+                        : p.paymentStatus == 'paid'
+                        ? Colors.green[300]
+                        : Colors.red[300],
                     child: Text(
                       p.userName.isNotEmpty ? p.userName[0].toUpperCase() : '?',
                       style: TextStyle(
-                        color: isPayer ? Colors.white : null,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -159,7 +164,15 @@ class ExpenseDetailPage extends StatelessWidget {
                   ),
                   subtitle: isPayer
                       ? const Text("Ödeme yapan")
-                      : Text('Durum: ${p.paymentStatus}'),
+                      : Text(
+                          p.paymentStatus == 'paid' ? '✅ Ödendi' : '❌ Ödenmedi',
+                          style: TextStyle(
+                            color: p.paymentStatus == 'paid'
+                                ? Colors.green
+                                : Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                   trailing: Text(
                     '${p.amountShare.toStringAsFixed(2)} ₺',
                     style: const TextStyle(
