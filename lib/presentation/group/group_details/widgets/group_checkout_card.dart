@@ -119,7 +119,7 @@ class GroupCheckoutCard extends StatelessWidget {
                           ),
 
                           // ✅ Ödeme Butonu
-                          if (hasDebt)
+                          if (entry.creditAmount - entry.debtAmount < 0)
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: ElevatedButton(
@@ -285,16 +285,16 @@ class GroupCheckoutCard extends StatelessWidget {
                                         ),
                                       )
                                     : Text(
-                                        "Öde ${payAmount.toStringAsFixed(2)} ₺",
+                                        "Öde ${(entry.creditAmount - entry.debtAmount).toStringAsFixed(2)} ₺",
                                       ),
                               ),
                             ),
 
-                          if (entry.creditAmount > 0)
+                          if ((entry.creditAmount - entry.debtAmount) > 0)
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
-                                "Toplam Alacak: +${entry.creditAmount.toStringAsFixed(2)} ₺",
+                                "Toplam Alacak: +${(entry.creditAmount - entry.debtAmount).toStringAsFixed(2)} ₺",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.green,

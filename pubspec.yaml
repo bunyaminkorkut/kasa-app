@@ -47,6 +47,10 @@ dependencies:
   jwt_decoder: ^2.0.1
   firebase_auth: ^5.7.0
   google_sign_in: ^6.1.5
+  camera: ^0.11.2
+  permission_handler: ^12.0.1
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

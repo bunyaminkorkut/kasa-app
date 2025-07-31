@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 import 'package:kasa_app/domain/group/create_expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
+import 'package:kasa_app/presentation/group/add_expense_page/camera/camera_page.dart';
 
 class CurrencyInputFormatter extends TextInputFormatter {
   final NumberFormat _formatter = NumberFormat.currency(
@@ -53,6 +56,7 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
   final _titleController = TextEditingController();
   final _noteController = TextEditingController();
   final _amountController = TextEditingController();
+  String? _billImageURL;
 
   final Set<String> _selectedMemberIds = {};
   bool _isSplitEqually = true;
@@ -116,7 +120,7 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
         note: note,
         paymentTitle: title,
         users: users,
-        billImageUrl: null,
+        billImageUrl: _billImageURL,
       );
 
       context.read<GroupBloc>().addCreateExpense(
@@ -127,21 +131,20 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text("Gider Oluştur"),
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
-      elevation: 0,
-    ),
-    body: BlocListener<GroupBloc, GroupState>(
-      listenWhen: (previous, current) =>
-          previous.createExpenseFailOrSuccess != current.createExpenseFailOrSuccess,
-      listener: (context, state) {
-        state.createExpenseFailOrSuccess.fold(
-          () => null,
-          (success) {
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Gider Oluştur"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: BlocListener<GroupBloc, GroupState>(
+        listenWhen: (previous, current) =>
+            previous.createExpenseFailOrSuccess !=
+            current.createExpenseFailOrSuccess,
+        listener: (context, state) {
+          state.createExpenseFailOrSuccess.fold(() => null, (success) {
             if (success) {
               Navigator.of(context).pop(); // Başarılıysa geri dön
             } else {
@@ -152,123 +155,169 @@ Widget build(BuildContext context) {
                 ),
               );
             }
-          },
-        );
-      },
-      child: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Başlık',
-                border: OutlineInputBorder(),
+          });
+        },
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Başlık',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    (value == null || value.isEmpty) ? 'Başlık gerekli' : null,
               ),
-              validator: (value) =>
-                  (value == null || value.isEmpty) ? 'Başlık gerekli' : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _noteController,
-              decoration: const InputDecoration(
-                labelText: 'Not (isteğe bağlı)',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  labelText: 'Not (isteğe bağlı)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
               ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [CurrencyInputFormatter()],
-              decoration: const InputDecoration(
-                labelText: 'Tutar',
-                hintText: '0,00',
-                border: OutlineInputBorder(),
-                prefixText: '₺ ',
-                suffixText: 'TL',
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Tutar gerekli';
-                final cleaned = value
-                    .replaceAll('.', '')
-                    .replaceAll(',', '.')
-                    .replaceAll('₺', '')
-                    .replaceAll('TL', '')
-                    .trim();
-                final amount = double.tryParse(cleaned);
-                if (amount == null || amount <= 0) {
-                  return 'Geçerli bir tutar giriniz';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              "Gideri paylaşacak üyeler",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            ...widget.group.members.map((member) {
-              final isChecked = _selectedMemberIds.contains(member.id);
-              return CheckboxListTile(
-                value: isChecked,
-                title: Text(member.fullname),
-                subtitle: Text(member.email),
-                onChanged: (checked) {
-                  setState(() {
-                    if (checked == true) {
-                      _selectedMemberIds.add(member.id);
-                    } else {
-                      _selectedMemberIds.remove(member.id);
-                    }
-                  });
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [CurrencyInputFormatter()],
+                decoration: const InputDecoration(
+                  labelText: 'Tutar',
+                  hintText: '0,00',
+                  border: OutlineInputBorder(),
+                  prefixText: '₺ ',
+                  suffixText: 'TL',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Tutar gerekli';
+                  final cleaned = value
+                      .replaceAll('.', '')
+                      .replaceAll(',', '.')
+                      .replaceAll('₺', '')
+                      .replaceAll('TL', '')
+                      .trim();
+                  final amount = double.tryParse(cleaned);
+                  if (amount == null || amount <= 0) {
+                    return 'Geçerli bir tutar giriniz';
+                  }
+                  return null;
                 },
-              );
-            }),
-            const SizedBox(height: 16),
-            CheckboxListTile(
-              value: _isSplitEqually,
-              onChanged: (val) {
-                setState(() {
-                  _isSplitEqually = val ?? true;
-                });
-              },
-              title: const Text(
-                "Gideri eşit şekilde paylaş",
-                style: TextStyle(fontWeight: FontWeight.w500),
               ),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 24),
-            BlocBuilder<GroupBloc, GroupState>(
-              builder: (context, state) {
-                if (state.creatingExpense) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                return ElevatedButton.icon(
-                  onPressed: _submitForm,
-                  icon: const Icon(Icons.check, color: Colors.white),
-                  label: const Text(
-                    "Gideri Kaydet",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
+              const SizedBox(height: 16),
+              if (_billImageURL == null)
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CameraCapturePage(),
+                      ),
+                    );
+                    if (result != null && mounted) {
+                      setState(() {
+                        _billImageURL = result as String;
+                      });
+                    }
+                  },
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text("Fiş Fotoğrafı Yükle"),
+                )
+              else ...[
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        _billImageURL!,
+                        height: 150,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.cancel, color: Colors.red, size: 18),
+                        onPressed: () {
+                          setState(() {
+                            _billImageURL = null;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 24),
+              const Text(
+                "Gideri paylaşacak üyeler",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              ...widget.group.members.map((member) {
+                final isChecked = _selectedMemberIds.contains(member.id);
+                return CheckboxListTile(
+                  value: isChecked,
+                  title: Text(member.fullname),
+                  subtitle: Text(member.email),
+                  onChanged: (checked) {
+                    setState(() {
+                      if (checked == true) {
+                        _selectedMemberIds.add(member.id);
+                      } else {
+                        _selectedMemberIds.remove(member.id);
+                      }
+                    });
+                  },
                 );
-              },
-            ),
-          ],
+              }),
+              const SizedBox(height: 16),
+              // CheckboxListTile(
+              //   value: _isSplitEqually,
+              //   onChanged: (val) {
+              //     setState(() {
+              //       _isSplitEqually = val ?? true;
+              //     });
+              //   },
+              //   title: const Text(
+              //     "Gideri eşit şekilde paylaş",
+              //     style: TextStyle(fontWeight: FontWeight.w500),
+              //   ),
+              //   controlAffinity: ListTileControlAffinity.leading,
+              //   contentPadding: EdgeInsets.zero,
+              // ),
+              const SizedBox(height: 24),
+              BlocBuilder<GroupBloc, GroupState>(
+                builder: (context, state) {
+                  if (state.creatingExpense) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return ElevatedButton.icon(
+                    onPressed: _submitForm,
+                    icon: const Icon(Icons.check, color: Colors.white),
+                    label: const Text(
+                      "Gideri Kaydet",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      textStyle: const TextStyle(fontSize: 16),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

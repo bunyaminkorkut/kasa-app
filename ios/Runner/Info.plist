@@ -43,6 +43,12 @@
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Fiş fotoğrafı çekmek için kamera izni gerekiyor.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Video kaydı için mikrofon izni gereklidir.</string>
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>CFBundleURLTypes</key>
@@ -56,5 +62,9 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>339572852906-q11psm45h7kds5nns74fbrtduk2l84n8.apps.googleusercontent.com</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+	<string>applinks:kasa.bunyamin.app</string>
+	</array>
 </dict>
 </plist>
