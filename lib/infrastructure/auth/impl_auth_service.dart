@@ -169,4 +169,30 @@ class AuthService implements IUserRepository {
       throw Exception('Ad Soyad güncelleme başarısız: ${response.body}');
     }
   }
+
+  @override
+  Future<bool> sendFCMToken({
+    required String fcmToken,
+    required String jwt,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolve('/save-fcm-token');
+    print(fcmToken);
+    print(jwt);
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwt',
+      },
+      body: jsonEncode({'token': fcmToken}),
+    );
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      return true;
+    } else {
+      throw Exception('FCM token gönderme başarısız: ${response.body}');
+    }
+  }
 }

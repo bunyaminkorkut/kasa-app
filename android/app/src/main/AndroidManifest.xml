@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
     <!-- Gerekirse diğer izinler buraya -->
     <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> -->
     <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> -->
@@ -34,10 +35,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="kasa.bunyamin.app"
-                    android:pathPrefix="/invite" />
+                <data android:scheme="https"
+                        android:host="kasa.bunyamin.app"
+                        android:pathPrefix="/add-group" />
             </intent-filter>
         </activity>
 
@@ -47,7 +47,7 @@
             android:value="2" />ü
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="default_channel" />
+            android:value="kasa_app_notifications" />
 
     </application>
 

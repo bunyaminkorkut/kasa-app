@@ -1,4 +1,5 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,7 @@ class _KasaSplashViewState extends State<KasaSplashView>
   late AnimationController _controller;
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   bool _navigated = false; // Navigation flag
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   @override
   void initState() {
@@ -43,6 +45,11 @@ class _KasaSplashViewState extends State<KasaSplashView>
           context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
           context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
           context.read<AuthCubit>().getUser(jwt);
+          final fcmToken = await _messaging.getToken();
+          print("FCM token: $fcmToken");
+          if (fcmToken != null && mounted) {
+            context.read<AuthCubit>().sendFCMToken(fcmToken, jwt);
+          }
         }
       } else {
         if (!_navigated && mounted) {

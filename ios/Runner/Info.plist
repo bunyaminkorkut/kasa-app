@@ -71,7 +71,15 @@
 	<key>UIBackgroundModes</key>
 	<array>
 	<string>fetch</string>
-	<string>remote-notification</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UNUserNotificationCenter</key>
+	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Bu uygulama bildirim göndermek için izninizi ister.</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:kasa.bunyamin.app</string>
 	</array>
 </dict>
 </plist>

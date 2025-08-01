@@ -20,4 +20,8 @@ abstract class IUserRepository {
     required String newFullName,
     required String jwt,
   });
+  Future<void> sendFCMToken({
+    required String fcmToken,
+    required String jwt,
+  });
 }

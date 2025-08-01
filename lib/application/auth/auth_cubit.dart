@@ -140,4 +140,17 @@ class AuthCubit extends Cubit<AuthState> {
       print('Ad soyad güncellenemedi: $e');
     }
   }
+
+  Future<bool> sendFCMToken(String fcmToken, String jwt) async {
+    try {
+      await _authService.sendFCMToken(
+        fcmToken: fcmToken,
+        jwt: jwt,
+      );
+      return true;
+    } catch (e) {
+      print('FCM token gönderilemedi: $e');
+      return false;
+    }
+  }
 }

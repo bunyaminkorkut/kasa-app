@@ -7,7 +7,9 @@ import 'package:kasa_app/presentation/settings/settings.dart';
 import 'package:kt_dart/collection.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int initialIndex;
+
+  const HomePage({super.key, this.initialIndex = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -15,11 +17,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late PageController pageController;
-  int currentIndex = 0;
+  late int currentIndex;
 
   @override
   void initState() {
     super.initState();
+    currentIndex = widget.initialIndex;
     pageController = PageController(initialPage: currentIndex);
   }
 
