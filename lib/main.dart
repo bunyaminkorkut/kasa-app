@@ -183,7 +183,7 @@ class _MyAppState extends State<MyApp> {
       if (apnsToken != null) {
         print('APNs token: $apnsToken');
         // Sunucuya kaydetmek istersen burada çağır
-      }
+      } 
 
       // Firebase token
       final fcmToken = await _messaging.getToken();
