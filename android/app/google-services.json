@@ -12,7 +12,20 @@
           "package_name": "com.example.kasa_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "339572852906-b09udmcnn1cia11duinmt9kpk5q5ereb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kasa_app",
+            "certificate_hash": "f9fac4989cb7a4a9d7f4c3ba6b25f0d08ab7c1f4"
+          }
+        },
+        {
+          "client_id": "339572852906-v2uerdmah7e68liq3mvghhco8jgbn5cd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDEW2ydqpub34PIAF5uTVwxvjFFKJPccwE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339572852906-v2uerdmah7e68liq3mvghhco8jgbn5cd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "339572852906-q11psm45h7kds5nns74fbrtduk2l84n8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kasaApp"
+              }
+            }
+          ]
         }
       }
     }
