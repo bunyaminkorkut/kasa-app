@@ -6,13 +6,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kasa_app/application/auth/auth_cubit.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/presentation/group_uni_link/group_uni_link.dart';
 import 'package:kasa_app/presentation/home/home.dart';
 import 'package:kasa_app/presentation/login/login.dart';
 
 class KasaSplashView extends StatefulWidget {
-  const KasaSplashView({super.key, required this.logo, this.isSplash = true});
+  const KasaSplashView({
+    super.key,
+    required this.logo,
+    this.isSplash = true,
+    this.groupToken,
+  });
   final Widget? logo;
   final bool isSplash;
+  final String? groupToken; // Optional group token for deep linking
 
   @override
   State<KasaSplashView> createState() => _KasaSplashViewState();
@@ -24,35 +31,75 @@ class _KasaSplashViewState extends State<KasaSplashView>
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   bool _navigated = false; // Navigation flag
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  bool _isInitializing = false;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(
-            vsync: this,
-            lowerBound: 0.75,
-            upperBound: 1.0,
-            duration: const Duration(seconds: 1),
-          )
-          ..forward()
-          ..repeat(reverse: true, min: 0.85);
+    print('SplashView başlatıldı - groupToken: ${widget.groupToken}');
 
-    Future.delayed(const Duration(seconds: 1), () async {
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.75,
+      upperBound: 1.0,
+      duration: const Duration(seconds: 1),
+    )
+      ..forward()
+      ..repeat(reverse: true, min: 0.85);
+
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    if (_isInitializing) return;
+    _isInitializing = true;
+
+    try {
       final jwt = await secureStorage.read(key: 'jwt');
+
       if (jwt != null && jwt.isNotEmpty) {
         if (mounted) {
+          // JWT varsa kullanıcı verilerini yükle
           context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
           context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
           context.read<AuthCubit>().getUser(jwt);
-          final fcmToken = await _messaging.getToken();
-          print("FCM token: $fcmToken");
-          if (fcmToken != null && mounted) {
-            context.read<AuthCubit>().sendFCMToken(fcmToken, jwt);
+
+          // FCM token'ı gönder
+          try {
+            final fcmToken = await _messaging.getToken();
+            if (fcmToken != null && mounted) {
+              context.read<AuthCubit>().sendFCMToken(fcmToken, jwt);
+            }
+          } catch (e) {
+            print('FCM token hatası: $e');
           }
         }
+
+        // JWT varsa ve groupToken varsa GroupUniLink'e git
+        if (widget.groupToken != null && widget.groupToken!.isNotEmpty) {
+          if (mounted && !_navigated) {
+            _navigated = true;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => GroupUniLink(groupToken: widget.groupToken!),
+              ),
+            );
+          }
+          return;
+        }
+
+        // JWT varsa ve groupToken yoksa HomePage'e git
+        if (mounted && !_navigated) {
+          _navigated = true;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+        }
       } else {
-        if (!_navigated && mounted) {
+        // JWT yoksa login sayfasına yönlendir
+        if (mounted && !_navigated) {
           _navigated = true;
           Navigator.pushReplacement(
             context,
@@ -60,7 +107,16 @@ class _KasaSplashViewState extends State<KasaSplashView>
           );
         }
       }
-    });
+    } catch (e) {
+      print('Splash initialization hatası: $e');
+      if (mounted && !_navigated) {
+        _navigated = true;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
+      }
+    }
   }
 
   @override
@@ -73,7 +129,9 @@ class _KasaSplashViewState extends State<KasaSplashView>
   Widget build(BuildContext context) {
     return BlocListener<GroupBloc, GroupState>(
       listenWhen: (previous, current) {
-        // Her iki success flag'ini ve fetching durumunu da dinle
+        // Group token varsa listener'ı devre dışı bırak
+        if (widget.groupToken != null) return false;
+
         return previous.hasFetchedGroupsSucceeded !=
                 current.hasFetchedGroupsSucceeded ||
             previous.hasFetchedRequestsSucceeded !=
@@ -82,12 +140,9 @@ class _KasaSplashViewState extends State<KasaSplashView>
                 !current.isFetchingData);
       },
       listener: (context, state) {
-        if (!mounted) return;
+        if (!mounted || _navigated || widget.groupToken != null) return;
 
-        // Eğer zaten yönlendirme yapılmışsa, tekrar yapma
-        if (_navigated) return;
-
-        // Eğer iki veri de başarıyla geldi ise home sayfasına git
+        // Başarılı veri yükleme durumu
         if (state.hasFetchedGroupsSucceeded &&
             state.hasFetchedRequestsSucceeded) {
           _navigated = true;
@@ -95,25 +150,30 @@ class _KasaSplashViewState extends State<KasaSplashView>
             context,
             MaterialPageRoute(builder: (_) => const HomePage()),
           );
+          return;
         }
-        // Eğer veri çekme işlemi bitti ve en az birinde hata varsa login'e yönlendir
-        else if (!state.isFetchingData &&
-            (state.getGroupsFailureOrGroups.fold(
-                  () => false,
-                  (either) => either.isLeft(),
-                ) ||
-                state.getGroupRequestsFailureOrRequests.fold(
-                  () => false,
-                  (either) => either.isLeft(),
-                ))) {
-          _navigated = true;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+
+        // Hata durumu - veri çekme tamamlandı ama başarısız
+        if (!state.isFetchingData) {
+          final hasGroupError = state.getGroupsFailureOrGroups.fold(
+            () => false,
+            (either) => either.isLeft(),
           );
+
+          final hasRequestError = state.getGroupRequestsFailureOrRequests.fold(
+            () => false,
+            (either) => either.isLeft(),
+          );
+
+          if (hasGroupError || hasRequestError) {
+            _navigated = true;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            );
+          }
         }
       },
-
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light.copyWith(
           statusBarColor: Colors.transparent,
@@ -122,10 +182,10 @@ class _KasaSplashViewState extends State<KasaSplashView>
           systemNavigationBarIconBrightness: Brightness.dark,
         ),
         child: Scaffold(
+          backgroundColor: Colors.white,
           body: Center(
             child: Column(
-              mainAxisSize:
-                  MainAxisSize.min, // Sadece içeriğin kapladığı kadar yer
+              mainAxisSize: MainAxisSize.min,
               children: [
                 AnimatedBuilder(
                   animation: _controller,
@@ -137,11 +197,13 @@ class _KasaSplashViewState extends State<KasaSplashView>
                   },
                 ),
                 if (!widget.isSplash) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   AnimatedTextKit(
                     animatedTexts: [
                       TyperAnimatedText(
-                        'Almost there...',
+                        widget.groupToken != null
+                            ? 'Joining group...'
+                            : 'Almost there...',
                         textStyle: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -150,7 +212,18 @@ class _KasaSplashViewState extends State<KasaSplashView>
                         speed: const Duration(milliseconds: 100),
                       ),
                     ],
+                    totalRepeatCount: 1,
                     pause: const Duration(milliseconds: 1000),
+                  ),
+                ] else ...[
+                  const SizedBox(height: 24),
+                  const SizedBox(
+                    height: 4,
+                    width: 200,
+                    child: LinearProgressIndicator(
+                      backgroundColor: Colors.grey,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
                   ),
                 ],
               ],

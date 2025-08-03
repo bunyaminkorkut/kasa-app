@@ -1,4 +1,4 @@
-package com.example.kasa_app
+package com.bunyamin.kasa
 
 import android.content.Intent
 import android.os.Bundle
