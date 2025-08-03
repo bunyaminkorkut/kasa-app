@@ -10,6 +10,7 @@ import 'package:kasa_app/domain/group/expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
+import 'package:kasa_app/domain/uni_link_group/uni_link_group_data.dart';
 import 'package:kt_dart/collection.dart';
 
 class GroupService implements IGroupRepository {
@@ -234,15 +235,36 @@ class GroupService implements IGroupRepository {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken', // Bearer eklendi
       },
-      body: jsonEncode({
-        "group_id": groupId,
-        "sended_user_id": sendedUserId,
-      }),
+      body: jsonEncode({"group_id": groupId, "sended_user_id": sendedUserId}),
     );
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
 
       return right(jsonResponse['message'] as String);
+    } else {
+      return left(ServerFailure('${response.body}'));
+    }
+  }
+
+  @override
+  Future<FailureOr<UniLinkGroupData>> addGroupWithGroupToken({
+    required String jwtToken,
+    required String groupToken,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/add-group-token'));
+    final response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({"group_token": groupToken}),
+    );
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final groupData = UniLinkGroupData.fromMap(jsonResponse);
+      return right(groupData);
     } else {
       return left(ServerFailure('${response.body}'));
     }

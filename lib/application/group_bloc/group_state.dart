@@ -10,11 +10,13 @@ final class GroupState extends Equatable {
     required this.sendingAddGroupReq,
     required this.sendAddGroupReqFailureOrRequests,
     required this.createExpenseFailOrSuccess,
+    required this.addGroupWithGroupTokenFailureOrGroup,
     required this.payExpenseFailOrSuccess,
     required this.creatingExpense,
     required this.isSendingReqAnswer,
     this.sendAddGroupReqErrorMessage,
     this.isFetchingRequests = false,
+    this.isAddingGroupWithGroupToken = false,
     this.isFetchingData = false,
     this.isCreatingGroup = false,
     this.isPayingExpense = false,
@@ -27,6 +29,8 @@ final class GroupState extends Equatable {
       groupsOption: none(),
       getGroupRequestsFailureOrRequests: none(),
       sendAddGroupReqFailureOrRequests: none(),
+      addGroupWithGroupTokenFailureOrGroup: none(),
+      isAddingGroupWithGroupToken: false,
       createExpenseFailOrSuccess: none(),
       payExpenseFailOrSuccess: none(),
       requestsOption: none(),
@@ -42,6 +46,8 @@ final class GroupState extends Equatable {
   }
 
   final Option<FailureOr<KtList<GroupData>>> getGroupsFailureOrGroups;
+  final Option<FailureOr<UniLinkGroupData>> addGroupWithGroupTokenFailureOrGroup;
+  final bool isAddingGroupWithGroupToken;
   final Option<KtList<GroupData>> groupsOption;
   final Option<FailureOr<KtList<GroupRequestData>>>
   getGroupRequestsFailureOrRequests;
@@ -66,8 +72,9 @@ final class GroupState extends Equatable {
     getGroupRequestsFailureOrRequests,
     Option<KtList<GroupRequestData>>? requestsOption,
     Option<bool>? sendAddGroupReqFailureOrRequests,
-    Option<bool>? createGroupFailOrSuccess,
+    Option<FailureOr<UniLinkGroupData>>? addGroupWithGroupTokenFailureOrGroup,
     bool? isFetchingData,
+    Option<bool>? createGroupFailOrSuccess,
     bool? isFetchingRequests,
     bool? isCreatingGroup,
     bool? sendingAddGroupReq,
@@ -77,6 +84,7 @@ final class GroupState extends Equatable {
     bool? creatingExpense,
     Option<bool>? payExpenseFailOrSuccess,
     bool? isPayingExpense,
+    bool? isAddingGroupWithGroupToken,
   }) {
     return GroupState(
       getGroupsFailureOrGroups:
@@ -98,10 +106,16 @@ final class GroupState extends Equatable {
       createExpenseFailOrSuccess:
           createExpenseFailOrSuccess ?? this.createExpenseFailOrSuccess,
       creatingExpense: creatingExpense ?? this.creatingExpense,
-      createGroupFailOrSuccess: createGroupFailOrSuccess ?? this.createGroupFailOrSuccess,
+      createGroupFailOrSuccess:
+          createGroupFailOrSuccess ?? this.createGroupFailOrSuccess,
       isCreatingGroup: isCreatingGroup ?? this.isCreatingGroup,
       payExpenseFailOrSuccess: payExpenseFailOrSuccess ?? this.payExpenseFailOrSuccess,
       isPayingExpense: isPayingExpense ?? this.isPayingExpense,
+      addGroupWithGroupTokenFailureOrGroup:
+          addGroupWithGroupTokenFailureOrGroup ??
+          this.addGroupWithGroupTokenFailureOrGroup,
+      isAddingGroupWithGroupToken:
+          isAddingGroupWithGroupToken ?? this.isAddingGroupWithGroupToken,
     );
   }
 

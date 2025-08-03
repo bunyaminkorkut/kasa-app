@@ -71,3 +71,14 @@ class GroupEventPayExpense extends GroupEvent {
   final String sendedUserId;
   List<Object?> get props => [jwtToken, groupId, sendedUserId];
 }
+class GroupEventAddGroupWithToken extends GroupEvent {
+  const GroupEventAddGroupWithToken({
+    required this.jwtToken,
+    required this.groupToken,
+  });
+  final String jwtToken;
+  final String groupToken;
+  List<Object?> get props => [jwtToken, groupToken];
+}
+
+

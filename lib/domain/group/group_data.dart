@@ -16,6 +16,7 @@ class GroupData extends Equatable {
     required this.expenses,
     required this.debts,
     required this.credits,
+    this.groupToken
   });
 
   final String name;
@@ -28,6 +29,7 @@ class GroupData extends Equatable {
   final List<Expense> expenses;
   final List<DebtData> debts;
   final List<CreditData> credits;
+  final String? groupToken;
 
   GroupData copyWith({
     String? name,
@@ -40,6 +42,7 @@ class GroupData extends Equatable {
     List<Expense>? expenses,
     List<DebtData>? debts,
     List<CreditData>? credits,
+    String? groupToken,
   }) {
     return GroupData(
       name: name ?? this.name,
@@ -52,6 +55,7 @@ class GroupData extends Equatable {
       expenses: expenses ?? this.expenses,
       debts: debts ?? this.debts,
       credits: credits ?? this.credits,
+      groupToken: groupToken ?? this.groupToken,
     );
   }
 
@@ -67,6 +71,7 @@ class GroupData extends Equatable {
       'expenses': expenses.map((e) => e.toMap()).toList(),
       'debts': debts.map((e) => e.toJson()).toList(),
       'credits': credits.map((e) => e.toJson()).toList(),
+      'group_token': groupToken, // Optional field
     };
   }
 
@@ -101,6 +106,7 @@ class GroupData extends Equatable {
               .map((e) => CreditData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      groupToken: map['group_token'] as String?, // Optional field
     );
   }
 
@@ -116,5 +122,6 @@ class GroupData extends Equatable {
         debts,
         credits,
         isAdmin,
+        groupToken
       ];
 }

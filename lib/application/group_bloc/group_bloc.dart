@@ -10,6 +10,7 @@ import 'package:kasa_app/domain/group/create_expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/i_group_repository.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
+import 'package:kasa_app/domain/uni_link_group/uni_link_group_data.dart';
 import 'package:kt_dart/collection.dart';
 
 part 'group_event.dart';
@@ -38,6 +39,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       }
       if (event is GroupEventPayExpense) {
         await _onPayExpense(event, emit);
+      }
+      if (event is GroupEventAddGroupWithToken) {
+        await _onAddGroupWithToken(event, emit);
       }
     });
   }
@@ -105,6 +109,14 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       ),
     );
   }
+
+  void addAddGroupWithGroupToken({
+    required String jwtToken,
+    required String groupToken,
+  }) {
+    add(GroupEventAddGroupWithToken(jwtToken: jwtToken, groupToken: groupToken));
+  }
+
 
   Future<void> _onCreateGroup(
     _GroupEventCreateGroup event,
@@ -413,6 +425,46 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       },
     );
   }
+
+  Future<void> _onAddGroupWithToken(
+    GroupEventAddGroupWithToken event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        isAddingGroupWithGroupToken: true,
+        addGroupWithGroupTokenFailureOrGroup: none(),
+      ),
+    );
+
+    final failOrResponse = await _groupRepository.addGroupWithGroupToken(
+      jwtToken: event.jwtToken,
+      groupToken: event.groupToken,
+    );
+
+    failOrResponse.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            isAddingGroupWithGroupToken: false,
+            addGroupWithGroupTokenFailureOrGroup: some(left(failure)),
+          ),
+        );
+      },
+      (groupData) {
+        final updatedGroups = groupData.groups;
+        emit(
+          state.copyWith(
+            isAddingGroupWithGroupToken: false,
+            addGroupWithGroupTokenFailureOrGroup: some(right(groupData)),
+            getGroupsFailureOrGroups: some(right(updatedGroups)),
+          ),
+        );
+      },
+    );
+  }
+
+
 
   final IGroupRepository _groupRepository;
 }

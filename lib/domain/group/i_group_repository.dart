@@ -5,6 +5,7 @@ import 'package:kasa_app/domain/group/accept_data.dart';
 import 'package:kasa_app/domain/group/create_expense_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/domain/group/request_data.dart';
+import 'package:kasa_app/domain/uni_link_group/uni_link_group_data.dart';
 import 'package:kt_dart/collection.dart';
 
 abstract class IGroupRepository {
@@ -16,4 +17,5 @@ abstract class IGroupRepository {
   Future<FailureOr<GroupData>> sendAddGroupRequest({required String jwtToken, required int groupId, required String memberEmail});
   Future<FailureOr<CreateExpenseResponse>> createExpense({required String jwtToken, required CreateExpenseData expenseData});
   Future<FailureOr<String>> payExpense({required String jwtToken, required int groupId, required String sendedUserId});
+  Future<FailureOr<UniLinkGroupData>> addGroupWithGroupToken({required String jwtToken, required String groupToken});
 }

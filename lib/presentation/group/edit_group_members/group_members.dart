@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
@@ -212,6 +213,50 @@ class _EditGroupMembersPageState extends State<EditGroupMembersPage> {
               ],
             ),
             const SizedBox(height: 24),
+            if (widget.group.groupToken != null) ...[
+              const Text(
+                "Davet Linki",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "kasa.bunyamin.app/add-group?group_token=${widget.group.groupToken}",
+                        style: const TextStyle(fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 20),
+                      tooltip: "Kopyala",
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                "https://kasa.bunyamin.app/add-group?group_token=${widget.group.groupToken}",
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Davet linki kopyalandı"),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Pending Requests
             const Text(

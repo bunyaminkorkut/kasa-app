@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kasa_app/application/auth/auth_cubit.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/presentation/group/group_details/group_details_page.dart';
 import 'package:kasa_app/presentation/group_uni_link/group_uni_link.dart';
 import 'package:kasa_app/presentation/home/home.dart';
 import 'package:kasa_app/presentation/login/login.dart';
@@ -19,7 +20,7 @@ class KasaSplashView extends StatefulWidget {
   });
   final Widget? logo;
   final bool isSplash;
-  final String? groupToken; // Optional group token for deep linking
+  final String? groupToken;
 
   @override
   State<KasaSplashView> createState() => _KasaSplashViewState();
@@ -29,7 +30,7 @@ class _KasaSplashViewState extends State<KasaSplashView>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  bool _navigated = false; // Navigation flag
+  bool _navigated = false;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   bool _isInitializing = false;
 
@@ -38,14 +39,15 @@ class _KasaSplashViewState extends State<KasaSplashView>
     super.initState();
     print('SplashView başlatıldı - groupToken: ${widget.groupToken}');
 
-    _controller = AnimationController(
-      vsync: this,
-      lowerBound: 0.75,
-      upperBound: 1.0,
-      duration: const Duration(seconds: 1),
-    )
-      ..forward()
-      ..repeat(reverse: true, min: 0.85);
+    _controller =
+        AnimationController(
+            vsync: this,
+            lowerBound: 0.75,
+            upperBound: 1.0,
+            duration: const Duration(seconds: 1),
+          )
+          ..forward()
+          ..repeat(reverse: true, min: 0.85);
 
     _initializeApp();
   }
@@ -59,9 +61,6 @@ class _KasaSplashViewState extends State<KasaSplashView>
 
       if (jwt != null && jwt.isNotEmpty) {
         if (mounted) {
-          // JWT varsa kullanıcı verilerini yükle
-          context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
-          context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
           context.read<AuthCubit>().getUser(jwt);
 
           // FCM token'ı gönder
@@ -73,32 +72,19 @@ class _KasaSplashViewState extends State<KasaSplashView>
           } catch (e) {
             print('FCM token hatası: $e');
           }
-        }
 
-        // JWT varsa ve groupToken varsa GroupUniLink'e git
-        if (widget.groupToken != null && widget.groupToken!.isNotEmpty) {
-          if (mounted && !_navigated) {
-            _navigated = true;
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => GroupUniLink(groupToken: widget.groupToken!),
-              ),
+          context.read<GroupBloc>().addFetchGroupRequests(jwtToken: jwt);
+          if (widget.groupToken != null && widget.groupToken!.isNotEmpty) {
+            context.read<GroupBloc>().addAddGroupWithGroupToken(
+              jwtToken: jwt,
+              groupToken: widget.groupToken!,
             );
+            return; // BlocListener sonucu yönlendirecek
+          } else {
+            context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
           }
-          return;
-        }
-
-        // JWT varsa ve groupToken yoksa HomePage'e git
-        if (mounted && !_navigated) {
-          _navigated = true;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomePage()),
-          );
         }
       } else {
-        // JWT yoksa login sayfasına yönlendir
         if (mounted && !_navigated) {
           _navigated = true;
           Navigator.pushReplacement(
@@ -129,8 +115,12 @@ class _KasaSplashViewState extends State<KasaSplashView>
   Widget build(BuildContext context) {
     return BlocListener<GroupBloc, GroupState>(
       listenWhen: (previous, current) {
-        // Group token varsa listener'ı devre dışı bırak
-        if (widget.groupToken != null) return false;
+        if (widget.groupToken != null) {
+          return previous.isAddingGroupWithGroupToken !=
+                  current.isAddingGroupWithGroupToken &&
+              !current.isAddingGroupWithGroupToken &&
+              current.addGroupWithGroupTokenFailureOrGroup.isSome();
+        }
 
         return previous.hasFetchedGroupsSucceeded !=
                 current.hasFetchedGroupsSucceeded ||
@@ -140,37 +130,64 @@ class _KasaSplashViewState extends State<KasaSplashView>
                 !current.isFetchingData);
       },
       listener: (context, state) {
-        if (!mounted || _navigated || widget.groupToken != null) return;
-
-        // Başarılı veri yükleme durumu
-        if (state.hasFetchedGroupsSucceeded &&
-            state.hasFetchedRequestsSucceeded) {
-          _navigated = true;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomePage()),
-          );
-          return;
-        }
-
-        // Hata durumu - veri çekme tamamlandı ama başarısız
-        if (!state.isFetchingData) {
-          final hasGroupError = state.getGroupsFailureOrGroups.fold(
-            () => false,
-            (either) => either.isLeft(),
-          );
-
-          final hasRequestError = state.getGroupRequestsFailureOrRequests.fold(
-            () => false,
-            (either) => either.isLeft(),
-          );
-
-          if (hasGroupError || hasRequestError) {
+        if (!mounted || _navigated) return;
+        if (widget.groupToken != null) {
+          final result = state.addGroupWithGroupTokenFailureOrGroup;
+          if (result.isSome()) {
+            result.fold(
+              () {},
+              (either) => either.fold(
+                (failure) {
+                  _navigated = true;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                  );
+                },
+                (group) {
+                  _navigated = true;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePage()),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          GroupDetailsPage(groupId: group.newGroupId),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        } else {
+          if (state.hasFetchedGroupsSucceeded &&
+              state.hasFetchedRequestsSucceeded) {
             _navigated = true;
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => const HomePage()),
             );
+            return;
+          }
+
+          if (!state.isFetchingData) {
+            final hasGroupError = state.getGroupsFailureOrGroups.fold(
+              () => false,
+              (either) => either.isLeft(),
+            );
+
+            final hasRequestError = state.getGroupRequestsFailureOrRequests
+                .fold(() => false, (either) => either.isLeft());
+
+            if (hasGroupError || hasRequestError) {
+              _navigated = true;
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            }
           }
         }
       },
@@ -196,8 +213,8 @@ class _KasaSplashViewState extends State<KasaSplashView>
                     );
                   },
                 ),
-                if (!widget.isSplash) ...[
-                  const SizedBox(height: 24),
+                const SizedBox(height: 24),
+                if (!widget.isSplash)
                   AnimatedTextKit(
                     animatedTexts: [
                       TyperAnimatedText(
@@ -214,9 +231,8 @@ class _KasaSplashViewState extends State<KasaSplashView>
                     ],
                     totalRepeatCount: 1,
                     pause: const Duration(milliseconds: 1000),
-                  ),
-                ] else ...[
-                  const SizedBox(height: 24),
+                  )
+                else
                   const SizedBox(
                     height: 4,
                     width: 200,
@@ -225,7 +241,6 @@ class _KasaSplashViewState extends State<KasaSplashView>
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                     ),
                   ),
-                ],
               ],
             ),
           ),
