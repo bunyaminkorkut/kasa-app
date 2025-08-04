@@ -310,7 +310,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => KasaSplashView(
-            logo: const FlutterLogo(size: 120),
+            logo: Image.asset(
+              'assets/icon.png',
+              width: 120,
+              height: 120,
+            ),
             isSplash: false,
             groupToken: tokenToPass,
           ),
@@ -405,18 +409,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (_isInitializing) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Checking deep links...'),
-              ],
-            ),
-          ),
-        ),
+        home: Scaffold(body: Center()),
       );
     }
 
@@ -446,7 +439,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             useMaterial3: true,
           ),
           home: KasaSplashView(
-            logo: const FlutterLogo(size: 120),
+            logo: Image.asset(
+              'assets/icon.png',
+              width: 120,
+              height: 120,
+            ),
             isSplash: true,
             groupToken: _pendingGroupToken,
           ),
@@ -454,8 +451,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             '/home': (context) => const HomePage(),
             '/login': (context) => const LoginPage(),
             '/register': (context) => const RegisterPage(),
-            '/splash': (context) =>
-                KasaSplashView(logo: FlutterLogo(size: 120)),
+            '/splash': (context) => KasaSplashView(
+                  logo: Image.asset(
+                    'assets/icon.png',
+                    width: 120,
+                    height: 120,
+                  ),
+                ),
             '/group_uni_link': (context) {
               final args = ModalRoute.of(context)!.settings.arguments as String;
               return GroupUniLink(groupToken: args);

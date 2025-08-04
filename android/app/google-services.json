@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "339572852906-f8p1mejd92pctvtn9p4uv3l9fttunhgm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bunyamin.kasa",
+            "certificate_hash": "510943a46498ac0152dd466111c98962d2eab367"
+          }
+        },
+        {
           "client_id": "339572852906-v2uerdmah7e68liq3mvghhco8jgbn5cd.apps.googleusercontent.com",
           "client_type": 3
         }
