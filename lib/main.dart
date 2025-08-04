@@ -24,7 +24,8 @@ import 'package:kasa_app/presentation/splash/splash_view.dart';
 import 'firebase_options.dart';
 
 // Bildirim ayarları
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -36,9 +37,14 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 
 // Bildirim kurulumu
 Future<void> initLocalNotifications() async {
-  const AndroidInitializationSettings androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const DarwinInitializationSettings iosInitSettings = DarwinInitializationSettings();
-  const InitializationSettings initSettings = InitializationSettings(android: androidInitSettings, iOS: iosInitSettings);
+  const AndroidInitializationSettings androidInitSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const DarwinInitializationSettings iosInitSettings =
+      DarwinInitializationSettings();
+  const InitializationSettings initSettings = InitializationSettings(
+    android: androidInitSettings,
+    iOS: iosInitSettings,
+  );
 
   await flutterLocalNotificationsPlugin.initialize(
     initSettings,
@@ -50,7 +56,9 @@ Future<void> initLocalNotifications() async {
         switch (type) {
           case 'new_request':
             navigatorKey.currentState?.pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const HomePage(initialIndex: 1)),
+              MaterialPageRoute(
+                builder: (context) => const HomePage(initialIndex: 1),
+              ),
               (route) => false,
             );
             break;
@@ -77,7 +85,11 @@ Future<void> initLocalNotifications() async {
         notification.title,
         notification.body,
         NotificationDetails(
-          android: AndroidNotificationDetails(channel.id, channel.name, channelDescription: channel.description),
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+          ),
           iOS: const DarwinNotificationDetails(),
         ),
         payload: payload,
@@ -133,33 +145,37 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   Future<void> _initializeDeepLinks() async {
     print('🔹 Deep link initialization başladı');
-    
+
     // iOS için daha güvenilir initial link kontrolü
     await _checkInitialLink();
-    
+
     // Runtime link listeners
     _setupDeepLinkListeners();
-    
+
     // Initialization tamamlandı
     setState(() {
       _isInitializing = false;
     });
-    
-    print('🔹 Deep link initialization tamamlandı - final token: $_pendingGroupToken');
+
+    print(
+      '🔹 Deep link initialization tamamlandı - final token: $_pendingGroupToken',
+    );
   }
 
   Future<void> _checkInitialLink() async {
     String? groupToken;
-    
+
     // Yöntem 1: app_links (birden fazla deneme)
     for (int i = 0; i < 3; i++) {
       try {
         print('🔹 app_links deneme ${i + 1}...');
-        await Future.delayed(Duration(milliseconds: i * 100)); // Progressive delay
-        
+        await Future.delayed(
+          Duration(milliseconds: i * 100),
+        ); // Progressive delay
+
         final uri = await _appLinks.getInitialLink();
         print('🔹 app_links sonucu (deneme ${i + 1}): $uri');
-        
+
         if (uri != null) {
           groupToken = uri.queryParameters['group_token'];
           if (groupToken != null && groupToken.isNotEmpty) {
@@ -171,15 +187,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         print('🔹 app_links deneme ${i + 1} hatası: $e');
       }
     }
-    
+
     // Yöntem 2: Platform-specific methods
     if (groupToken == null) {
       try {
         print('🔹 Platform channel deneniyor...');
         const platform = MethodChannel('com.bunyamin.kasa/deep_link');
-        final String? initialLink = await platform.invokeMethod('getInitialLink');
+        final String? initialLink = await platform.invokeMethod(
+          'getInitialLink',
+        );
         print('🔹 Platform channel sonucu: $initialLink');
-        
+
         if (initialLink != null && initialLink.isNotEmpty) {
           final uri = Uri.tryParse(initialLink);
           groupToken = uri?.queryParameters['group_token'];
@@ -189,15 +207,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         print('🔹 Platform channel hatası: $e');
       }
     }
-    
+
     // Yöntem 3: iOS-specific UserActivity check
-    if (groupToken == null && Theme.of(context).platform == TargetPlatform.iOS) {
+    if (groupToken == null &&
+        Theme.of(context).platform == TargetPlatform.iOS) {
       try {
         print('🔹 iOS UserActivity deneniyor...');
         const platform = MethodChannel('com.bunyamin.kasa/ios_activity');
-        final String? activityUrl = await platform.invokeMethod('getUserActivityUrl');
+        final String? activityUrl = await platform.invokeMethod(
+          'getUserActivityUrl',
+        );
         print('🔹 iOS UserActivity sonucu: $activityUrl');
-        
+
         if (activityUrl != null && activityUrl.isNotEmpty) {
           final uri = Uri.tryParse(activityUrl);
           groupToken = uri?.queryParameters['group_token'];
@@ -207,7 +228,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         print('🔹 iOS UserActivity hatası: $e');
       }
     }
-    
+
     if (groupToken != null && groupToken.isNotEmpty) {
       setState(() {
         _pendingGroupToken = groupToken;
@@ -231,31 +252,35 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
 
     // Platform channel listener (EventChannel)
-    _platformChannelSubscription = const EventChannel('com.bunyamin.kasa/universal_link')
-        .receiveBroadcastStream()
-        .listen((dynamic link) {
-      print('🔹 Platform channel geldi: $link');
-      _handleDeepLink(link as String?);
-    }, onError: (error) {
-      print('🔹 Platform channel hatası: $error');
-    });
+    _platformChannelSubscription =
+        const EventChannel(
+          'com.bunyamin.kasa/universal_link',
+        ).receiveBroadcastStream().listen(
+          (dynamic link) {
+            print('🔹 Platform channel geldi: $link');
+            _handleDeepLink(link as String?);
+          },
+          onError: (error) {
+            print('🔹 Platform channel hatası: $error');
+          },
+        );
   }
 
   void _handleDeepLink(String? link) {
     print('🔹 Deep link işleniyor: $link');
     if (link == null || link.isEmpty) return;
-    
+
     try {
       final uri = Uri.tryParse(link);
       final groupToken = uri?.queryParameters['group_token'];
       print('🔹 Parsed group token: $groupToken');
-      
+
       if (groupToken != null && groupToken.isNotEmpty) {
         setState(() {
           _pendingGroupToken = groupToken;
         });
         print('🔹 Group token state güncellendi: $groupToken');
-        
+
         // Immediate navigation for runtime links
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _navigateToGroupLink();
@@ -271,14 +296,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('🔹 Navigate: pending token null');
       return;
     }
-    
+
     final context = navigatorKey.currentContext;
     final tokenToPass = _pendingGroupToken;
-    
+
     print('🔹 Navigate: context=$context, token=$tokenToPass');
-    
+
     if (context != null && mounted) {
       print('🔹 Navigating to group link with token: $tokenToPass');
+      setState(() {
+        _pendingGroupToken = null;
+      });
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => KasaSplashView(
@@ -289,9 +317,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
         (route) => false,
       );
-      setState(() {
-        _pendingGroupToken = null;
-      });
     }
   }
 
@@ -299,7 +324,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('🔹 App lifecycle: $state, pending token: $_pendingGroupToken');
     if (state == AppLifecycleState.resumed && _pendingGroupToken != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _navigateToGroupLink());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _navigateToGroupLink(),
+      );
     }
   }
 
@@ -313,7 +340,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void _setupFirebaseMessaging() async {
     try {
-      final settings = await _messaging.requestPermission(alert: true, badge: true, sound: true);
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         final fcmToken = await _messaging.getToken();
         if (fcmToken != null) print('FCM token: $fcmToken');
@@ -330,7 +361,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           notification.title,
           notification.body,
           NotificationDetails(
-            android: AndroidNotificationDetails(channel.id, channel.name, channelDescription: channel.description),
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+            ),
             iOS: const DarwinNotificationDetails(),
           ),
         );
@@ -340,11 +375,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       final data = message.data;
       final type = data['type'];
-      
+
       switch (type) {
         case 'new_request':
           navigatorKey.currentState?.pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const HomePage(initialIndex: 1)),
+            MaterialPageRoute(
+              builder: (context) => const HomePage(initialIndex: 1),
+            ),
             (route) => false,
           );
           break;
@@ -360,8 +397,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    print('🔹 Build çağrıldı - initializing: $_isInitializing, pending token: $_pendingGroupToken');
-    
+    print(
+      '🔹 Build çağrıldı - initializing: $_isInitializing, pending token: $_pendingGroupToken',
+    );
+
     // Show loading while checking for initial links
     if (_isInitializing) {
       return MaterialApp(
@@ -380,7 +419,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
       );
     }
-    
+
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<IGroupRepository>(create: (_) => GroupService()),
@@ -388,9 +427,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<AuthCubit>(create: (context) => AuthCubit(secureStorage: widget.secureStorage)),
-          BlocProvider<GroupBloc>(create: (context) => GroupBloc(context.read<IGroupRepository>())),
-          BlocProvider<PhotoCubit>(create: (context) => PhotoCubit(context.read<IPhotoRepository>())),
+          BlocProvider<AuthCubit>(
+            create: (context) => AuthCubit(secureStorage: widget.secureStorage),
+          ),
+          BlocProvider<GroupBloc>(
+            create: (context) => GroupBloc(context.read<IGroupRepository>()),
+          ),
+          BlocProvider<PhotoCubit>(
+            create: (context) => PhotoCubit(context.read<IPhotoRepository>()),
+          ),
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,
@@ -409,7 +454,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             '/home': (context) => const HomePage(),
             '/login': (context) => const LoginPage(),
             '/register': (context) => const RegisterPage(),
-            '/splash': (context) => const KasaSplashView(logo: FlutterLogo(size: 120)),
+            '/splash': (context) =>
+                KasaSplashView(logo: FlutterLogo(size: 120)),
             '/group_uni_link': (context) {
               final args = ModalRoute.of(context)!.settings.arguments as String;
               return GroupUniLink(groupToken: args);

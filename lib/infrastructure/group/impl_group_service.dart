@@ -261,7 +261,7 @@ class GroupService implements IGroupRepository {
       },
       body: jsonEncode({"group_token": groupToken}),
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       final jsonResponse = jsonDecode(response.body);
       final groupData = UniLinkGroupData.fromMap(jsonResponse);
       return right(groupData);

@@ -444,6 +444,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
 
     failOrResponse.fold(
       (failure) {
+        print('Grup ekleme hatası: $failure');
         emit(
           state.copyWith(
             isAddingGroupWithGroupToken: false,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kasa_app/application/auth/auth_cubit.dart';
 import 'package:kasa_app/presentation/register/register.dart';
+import 'package:kasa_app/presentation/splash/splash_view.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +15,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  bool _navigated = false;
 
   bool _isLoading = false;
 
@@ -50,16 +54,27 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
+      listenWhen: (previous, current) =>
+          !_navigated && current.isAuthenticated != previous.isAuthenticated,
+      listener: (context, state) async {
+        if (_navigated) return;
         if (state.isAuthenticated) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Giriş başarılı')));
-          Navigator.pushReplacementNamed(context, '/splash');
+          _navigated = true;
+
+          final jwt = await secureStorage.read(key: 'jwt');
+          if (jwt != null && jwt.isNotEmpty) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Giriş başarılı')));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => KasaSplashView(logo: null)),
+            );
+          }
         } else {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Giriş hatası')));
+          ).showSnackBar(const SnackBar(content: Text('Giriş hatası')));
         }
       },
       child: Scaffold(

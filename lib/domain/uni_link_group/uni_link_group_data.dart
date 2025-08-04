@@ -15,7 +15,7 @@ class UniLinkGroupData extends Equatable {
 
   factory UniLinkGroupData.fromMap(Map<String, dynamic> map) {
     return UniLinkGroupData(
-      newGroupId: map['newGroupId'] ?? '',
+      newGroupId: map['new_group_id'],
       groups: KtList.from(
         (map['groups'] as List<dynamic>).map((group) => GroupData.fromMap(group)),
       ),

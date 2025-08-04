@@ -12,7 +12,7 @@ import 'package:kasa_app/presentation/home/home.dart';
 import 'package:kasa_app/presentation/login/login.dart';
 
 class KasaSplashView extends StatefulWidget {
-  const KasaSplashView({
+  KasaSplashView({
     super.key,
     required this.logo,
     this.isSplash = true,
@@ -20,7 +20,7 @@ class KasaSplashView extends StatefulWidget {
   });
   final Widget? logo;
   final bool isSplash;
-  final String? groupToken;
+  String? groupToken;
 
   @override
   State<KasaSplashView> createState() => _KasaSplashViewState();
@@ -116,10 +116,8 @@ class _KasaSplashViewState extends State<KasaSplashView>
     return BlocListener<GroupBloc, GroupState>(
       listenWhen: (previous, current) {
         if (widget.groupToken != null) {
-          return previous.isAddingGroupWithGroupToken !=
-                  current.isAddingGroupWithGroupToken &&
-              !current.isAddingGroupWithGroupToken &&
-              current.addGroupWithGroupTokenFailureOrGroup.isSome();
+          return previous.addGroupWithGroupTokenFailureOrGroup !=
+              current.addGroupWithGroupTokenFailureOrGroup;
         }
 
         return previous.hasFetchedGroupsSucceeded !=
@@ -130,14 +128,19 @@ class _KasaSplashViewState extends State<KasaSplashView>
                 !current.isFetchingData);
       },
       listener: (context, state) {
-        if (!mounted || _navigated) return;
+        if (!mounted) return;
+        print('BlocListener tetiklendi - groupToken: ${widget.groupToken}');
         if (widget.groupToken != null) {
+          print('Group token ile yönlendirme yapılıyor...');
           final result = state.addGroupWithGroupTokenFailureOrGroup;
           if (result.isSome()) {
             result.fold(
               () {},
               (either) => either.fold(
                 (failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Grup eklenemedi')),
+                  );
                   _navigated = true;
                   Navigator.pushReplacement(
                     context,
@@ -146,17 +149,21 @@ class _KasaSplashViewState extends State<KasaSplashView>
                 },
                 (group) {
                   _navigated = true;
-                  Navigator.pushReplacement(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const HomePage()),
+                    (route) => false,
                   );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          GroupDetailsPage(groupId: group.newGroupId),
-                    ),
-                  );
+
+                  Future.microtask(() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            GroupDetailsPage(groupId: group.newGroupId),
+                      ),
+                    );
+                  });
                 },
               ),
             );
