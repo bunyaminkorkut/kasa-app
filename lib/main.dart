@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kasa_app/application/auth/auth_cubit.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 import 'package:kasa_app/application/photo/photo_cubit.dart';
@@ -110,6 +111,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initLocalNotifications();
+  await MobileAds.instance.initialize();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   const FlutterSecureStorage secureStorage = FlutterSecureStorage();

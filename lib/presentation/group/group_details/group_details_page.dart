@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/presentation/group/add_expense_page/add_expense_page.dart';
@@ -12,7 +13,18 @@ import 'package:kasa_app/presentation/group/group_details/widgets/group_members_
 class GroupDetailsPage extends StatelessWidget {
   final int groupId;
 
-  const GroupDetailsPage({super.key, required this.groupId});
+  GroupDetailsPage({super.key, required this.groupId});
+
+  BannerAd bannerAd = BannerAd(
+    adUnitId: 'ca-app-pub-8425387935401647/4877168916',
+    size: AdSize.banner,
+    request: AdRequest(),
+    listener: BannerAdListener(
+    onAdFailedToLoad: (ad, error) {
+      print('❌ Banner failed to load: $error');
+    },
+  ),
+  )..load();
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +59,13 @@ class GroupDetailsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        alignment: Alignment.center,
+                        width: bannerAd.size.width.toDouble(),
+                        height: bannerAd.size.height.toDouble(),
+                        child: AdWidget(ad: bannerAd),
+                      ),
+
                       _buildGroupInfoCard(group),
                       const SizedBox(height: 20),
                       GroupMembersCard(group: group),
@@ -145,7 +164,7 @@ class GroupDetailsPage extends StatelessWidget {
             _buildInfoRow(
               Icons.receipt_long_outlined,
               "Toplam Harcama",
-                "${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(totalExpense)}",
+              "${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(totalExpense)}",
             ),
           ],
         ),
