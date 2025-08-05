@@ -145,7 +145,7 @@ class GroupDetailsPage extends StatelessWidget {
             _buildInfoRow(
               Icons.receipt_long_outlined,
               "Toplam Harcama",
-              "${totalExpense.toStringAsFixed(2)} ₺",
+                "${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(totalExpense)}",
             ),
           ],
         ),

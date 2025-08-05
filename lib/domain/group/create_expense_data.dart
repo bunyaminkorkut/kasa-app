@@ -91,10 +91,10 @@ class CreateExpenseResponse extends Equatable {
   factory CreateExpenseResponse.fromJson(Map<String, dynamic> json) {
     return CreateExpenseResponse(
       expense: Expense.fromMap(json['expense']),
-      credits: (json['credits'] as List)
+      credits: (json['credits'] as List).where((e) => e["status"] != "paid")
           .map((e) => CreditData.fromJson(e))
           .toList(),
-      debts: (json['debts'] as List)
+      debts: (json['debts'] as List).where((e) => e["status"] != "paid")
           .map((e) => DebtData.fromJson(e))
           .toList(),
     );

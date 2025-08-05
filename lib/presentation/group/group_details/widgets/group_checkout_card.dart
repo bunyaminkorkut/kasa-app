@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 import 'package:kasa_app/domain/group/checkout_data.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
@@ -98,7 +99,7 @@ class GroupCheckoutCard extends StatelessWidget {
                               children: [
                                 if (entry.creditAmount > 0)
                                   Text(
-                                    "+${entry.creditAmount.toStringAsFixed(2)} ₺",
+                                    "+${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(entry.creditAmount)}",
                                     style: const TextStyle(
                                       color: Colors.green,
                                       fontWeight: FontWeight.bold,
@@ -107,7 +108,7 @@ class GroupCheckoutCard extends StatelessWidget {
                                   ),
                                 if (entry.debtAmount > 0)
                                   Text(
-                                    "-${entry.debtAmount.toStringAsFixed(2)} ₺",
+                                    "-${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(entry.debtAmount)}",
                                     style: const TextStyle(
                                       color: Colors.red,
                                       fontWeight: FontWeight.bold,
@@ -285,7 +286,7 @@ class GroupCheckoutCard extends StatelessWidget {
                                         ),
                                       )
                                     : Text(
-                                        "Öde ${(entry.creditAmount - entry.debtAmount).toStringAsFixed(2)} ₺",
+                                        "Öde ${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format(entry.creditAmount - entry.debtAmount)}",
                                       ),
                               ),
                             ),
@@ -294,7 +295,7 @@ class GroupCheckoutCard extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
-                                "Toplam Alacak: +${(entry.creditAmount - entry.debtAmount).toStringAsFixed(2)} ₺",
+                                "Toplam Alacak: +${NumberFormat.currency(locale: 'tr_TR', symbol: '₺', decimalDigits: 2).format((entry.creditAmount - entry.debtAmount))}",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.green,

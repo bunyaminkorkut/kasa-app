@@ -63,8 +63,8 @@ class _HomePageState extends State<HomePage> {
             onTap: _onBottomNavigationBarTap,
             items: [
               const BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard),
-                label: 'Dashboard',
+                icon: Icon(Icons.group),
+                label: 'Gruplar',
               ),
               BottomNavigationBarItem(
                 icon: Stack(

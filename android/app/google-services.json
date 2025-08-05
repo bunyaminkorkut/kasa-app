@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "339572852906-8c2fpfprcvh5n24k4lm1gjktqmlsa48m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bunyamin.kasa",
+            "certificate_hash": "6207f531608d0df309957815d48eafa6962a83c8"
+          }
+        },
+        {
           "client_id": "339572852906-f8p1mejd92pctvtn9p4uv3l9fttunhgm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
