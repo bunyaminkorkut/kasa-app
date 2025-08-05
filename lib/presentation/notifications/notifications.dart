@@ -40,16 +40,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
+      appBar: AppBar(title: const Text('Bildirimler')),
       body: RefreshIndicator(
         onRefresh: _refreshNotifications,
         child: BlocBuilder<GroupBloc, GroupState>(
           builder: (context, state) {
             return state.requestsOption.fold(
-              () => const Center(child: Text('There is no notification')),
+              () => const Center(child: Text('Bir bildirimin yok!')),
               (requests) {
                 if (requests.isEmpty()) {
-                  return const Center(child: Text('There is no notification'));
+                  return const Center(child: Text('Bir bildirimin yok!'));
                 }
                 return ListView.builder(
                   itemCount: requests.size,

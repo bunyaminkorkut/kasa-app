@@ -69,7 +69,7 @@ class _GroupListPageState extends State<GroupListPage> {
         );
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('My Groups')),
+        appBar: AppBar(title: const Text('Gruplarım')),
         body: RefreshIndicator(
           onRefresh: () => _refreshGroups(context),
           child: BlocBuilder<GroupBloc, GroupState>(
@@ -86,7 +86,7 @@ class _GroupListPageState extends State<GroupListPage> {
                         Center(child: Text('Error: ${failure.toString()}')),
                     (groups) {
                       if (groups.isEmpty()) {
-                        return const Center(child: Text('No groups found'));
+                        return const Center(child: Text('Grup bulunamadı'));
                       }
 
                       return ListView.builder(

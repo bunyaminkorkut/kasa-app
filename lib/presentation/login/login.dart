@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const RegisterPage(),
@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Create Account'),
+                    : const Text('Hesap Oluştur'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -150,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Login with Google'),
+                    : const Text('Google ile giriş yap'),
               ),
             ],
           ),

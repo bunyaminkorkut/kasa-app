@@ -98,11 +98,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                   ],
                 ),
-                label: 'Notifications',
+                label: 'Bildirimler',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
-                label: 'Settings',
+                label: 'Ayarlar',
               ),
             ],
           );

@@ -168,28 +168,28 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.copy),
-                    label: const Text('JWT Kopyala'),
-                    onPressed: () {
-                      secureStorage.read(key: 'jwt').then((jwt) {
-                        if (jwt != null && jwt.isNotEmpty) {
-                          Clipboard.setData(ClipboardData(text: jwt));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('JWT panoya kopyalandı')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('JWT bulunamadı')),
-                          );
-                        }
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
+                  // ElevatedButton.icon(
+                  //   icon: const Icon(Icons.copy),
+                  //   label: const Text('JWT Kopyala'),
+                  //   onPressed: () {
+                  //     secureStorage.read(key: 'jwt').then((jwt) {
+                  //       if (jwt != null && jwt.isNotEmpty) {
+                  //         Clipboard.setData(ClipboardData(text: jwt));
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(content: Text('JWT panoya kopyalandı')),
+                  //         );
+                  //       } else {
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(content: Text('JWT bulunamadı')),
+                  //         );
+                  //       }
+                  //     });
+                  //   },
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.blueGrey,
+                  //     foregroundColor: Colors.white,
+                  //   ),
+                  // ),
                 ],
               );
             },
