@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kasa_app/application/auth/auth_cubit.dart';
+import 'package:kasa_app/domain/ad/ad.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -73,7 +75,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (!state.isAuthenticated) {
-          Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
         }
       },
       child: Scaffold(
@@ -87,17 +93,30 @@ class _SettingsPageState extends State<SettingsPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Container(
+                    alignment: Alignment.center,
+                    width: KasaBannerAd().bannerAd.size.width.toDouble(),
+                    height: KasaBannerAd().bannerAd.size.height.toDouble(),
+                    child: AdWidget(ad: KasaBannerAd().bannerAd),
+                  ),
                   if (user != null) ...[
                     Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       elevation: 4,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Kullanıcı Bilgileri',
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Kullanıcı Bilgileri',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 12),
                             Row(
                               children: [
@@ -112,7 +131,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                       initialValue: user.fullName,
                                       labelText: 'Ad Soyad',
                                       onSave: (newName) {
-                                        context.read<AuthCubit>().updateFullName(newName);
+                                        context
+                                            .read<AuthCubit>()
+                                            .updateFullName(newName);
                                       },
                                     );
                                   },
@@ -132,17 +153,31 @@ class _SettingsPageState extends State<SettingsPage> {
                               children: [
                                 const Icon(Icons.credit_card),
                                 const SizedBox(width: 8),
-                                Expanded(child: Text(user.iban.isEmpty ? 'IBAN eklenmemiş' : user.iban)),
+                                Expanded(
+                                  child: Text(
+                                    user.iban.isEmpty
+                                        ? 'IBAN eklenmemiş'
+                                        : user.iban,
+                                  ),
+                                ),
                                 TextButton.icon(
-                                  icon: Icon(user.iban.isEmpty ? Icons.add : Icons.edit),
-                                  label: Text(user.iban.isEmpty ? 'IBAN Ekle' : 'IBAN Güncelle'),
+                                  icon: Icon(
+                                    user.iban.isEmpty ? Icons.add : Icons.edit,
+                                  ),
+                                  label: Text(
+                                    user.iban.isEmpty
+                                        ? 'IBAN Ekle'
+                                        : 'IBAN Güncelle',
+                                  ),
                                   onPressed: () {
                                     _showEditDialog(
                                       title: 'IBAN Güncelle',
                                       initialValue: user.iban,
                                       labelText: 'IBAN',
                                       onSave: (newIban) {
-                                        context.read<AuthCubit>().updateIban(newIban);
+                                        context.read<AuthCubit>().updateIban(
+                                          newIban,
+                                        );
                                       },
                                     );
                                   },

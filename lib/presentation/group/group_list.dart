@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/domain/ad/ad.dart';
 import 'package:kasa_app/presentation/group/widgets/create_group_popup.dart';
 import 'package:kasa_app/presentation/group/widgets/group_card.dart';
 import 'package:kt_dart/collection.dart';
@@ -21,9 +23,9 @@ class _GroupListPageState extends State<GroupListPage> {
     if (jwt != null && jwt.isNotEmpty) {
       context.read<GroupBloc>().addFetchGroups(jwtToken: jwt);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No JWT found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No JWT found')));
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }
   }
@@ -37,9 +39,9 @@ class _GroupListPageState extends State<GroupListPage> {
             final jwt = await secureStorage.read(key: 'jwt');
             if (jwt != null && jwt.isNotEmpty) {
               context.read<GroupBloc>().addCreateGroup(
-                    jwtToken: jwt,
-                    groupName: groupName,
-                  );
+                jwtToken: jwt,
+                groupName: groupName,
+              );
             }
           },
         );
@@ -53,20 +55,29 @@ class _GroupListPageState extends State<GroupListPage> {
       listenWhen: (previous, current) =>
           previous.createGroupFailOrSuccess != current.createGroupFailOrSuccess,
       listener: (context, state) async {
-        state.createGroupFailOrSuccess?.fold(
-          () {},
-          (success) async {
-            if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Grup başarıyla oluşturuldu')),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Grup oluşturulamadı')),
-              );
-            }
-          },
-        );
+        state.createGroupFailOrSuccess?.fold(() {}, (success) async {
+          if (success) {
+            Container(
+              alignment: Alignment.center,
+              width: KasaBannerAd().bannerAd.size.width.toDouble(),
+              height: KasaBannerAd().bannerAd.size.height.toDouble(),
+              child: AdWidget(ad: KasaBannerAd().bannerAd),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Grup başarıyla oluşturuldu')),
+            );
+          } else {
+            Container(
+              alignment: Alignment.center,
+              width: KasaBannerAd().bannerAd.size.width.toDouble(),
+              height: KasaBannerAd().bannerAd.size.height.toDouble(),
+              child: AdWidget(ad: KasaBannerAd().bannerAd),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Grup oluşturulamadı')),
+            );
+          }
+        });
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Gruplarım')),
@@ -89,13 +100,25 @@ class _GroupListPageState extends State<GroupListPage> {
                         return const Center(child: Text('Grup bulunamadı'));
                       }
 
-                      return ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: groups.size,
-                        itemBuilder: (context, index) {
-                          final group = groups[index];
-                          return GroupCard(group: group);
-                        },
+                      return Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            width: KasaBannerAd().bannerAd.size.width.toDouble(),
+                            height: KasaBannerAd().bannerAd.size.height.toDouble(),
+                            child: AdWidget(ad: KasaBannerAd().bannerAd),
+                          ),
+                          Expanded(
+                            child: ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: groups.size,
+                              itemBuilder: (context, index) {
+                                final group = groups[index];
+                                return GroupCard(group: group);
+                              },
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),

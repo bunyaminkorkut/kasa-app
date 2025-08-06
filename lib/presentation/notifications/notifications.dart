@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
+import 'package:kasa_app/domain/ad/ad.dart';
 import 'package:kasa_app/presentation/notifications/widgets/request_card.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -49,16 +51,46 @@ class _NotificationsPageState extends State<NotificationsPage> {
               () => const Center(child: Text('Bir bildirimin yok!')),
               (requests) {
                 if (requests.isEmpty()) {
-                  return const Center(child: Text('Bir bildirimin yok!'));
+                    return Column(
+                    children: [
+                      Container(
+                      alignment: Alignment.center,
+                      width: KasaBannerAd().bannerAd.size.width.toDouble(),
+                      height: KasaBannerAd().bannerAd.size.height.toDouble(),
+                      child: AdWidget(ad: KasaBannerAd().bannerAd),
+                      ),
+                      Expanded(
+                      child: Center(
+                        child: Text('Bir bildirimin yok!'),
+                      ),
+                      ),
+                    ],
+                    );
                 }
-                return ListView.builder(
-                  itemCount: requests.size,
-                  itemBuilder: (context, index) {
-                    final req = requests[index];
-                    final isLoading = state.isSendingReqAnswer == req.requestId;
+                return Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      width: KasaBannerAd().bannerAd.size.width.toDouble(),
+                      height: KasaBannerAd().bannerAd.size.height.toDouble(),
+                      child: AdWidget(ad: KasaBannerAd().bannerAd),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: requests.size,
+                        itemBuilder: (context, index) {
+                          final req = requests[index];
+                          final isLoading =
+                              state.isSendingReqAnswer == req.requestId;
 
-                    return GroupRequestCard(request: req, isLoading: isLoading);
-                  },
+                          return GroupRequestCard(
+                            request: req,
+                            isLoading: isLoading,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 );
               },
             );

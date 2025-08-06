@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:kasa_app/domain/ad/ad.dart';
 import 'package:kasa_app/domain/group/group_data.dart';
 import 'package:kasa_app/presentation/group/add_expense_page/add_expense_page.dart';
 import 'package:kasa_app/presentation/group/edit_group_members/group_members.dart';
@@ -10,21 +11,65 @@ import 'package:kasa_app/presentation/group/group_details/widgets/group_checkout
 import 'package:kasa_app/presentation/group/group_details/widgets/group_expense_card.dart';
 import 'package:kasa_app/presentation/group/group_details/widgets/group_members_card.dart';
 
-class GroupDetailsPage extends StatelessWidget {
+class GroupDetailsPage extends StatefulWidget {
   final int groupId;
 
-  GroupDetailsPage({super.key, required this.groupId});
+  const GroupDetailsPage({super.key, required this.groupId});
 
-  BannerAd bannerAd = BannerAd(
-    adUnitId: 'ca-app-pub-8425387935401647/4877168916',
-    size: AdSize.banner,
-    request: AdRequest(),
-    listener: BannerAdListener(
-    onAdFailedToLoad: (ad, error) {
-      print('❌ Banner failed to load: $error');
-    },
-  ),
-  )..load();
+  @override
+  State<GroupDetailsPage> createState() => _GroupDetailsPageState();
+}
+
+class _GroupDetailsPageState extends State<GroupDetailsPage> {
+  InterstitialAd? _interstitialAd;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInterstitialAd();
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-8425387935401647/2464426860', // senin geçiş reklamı ID'in
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          print('✅ Interstitial ad loaded');
+          _interstitialAd = ad;
+          _showInterstitialAd(); // yüklendiği gibi göster
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('❌ Interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) return;
+
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('🔁 Reklam kapandı');
+        ad.dispose();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('❌ Reklam gösterilemedi: $error');
+        ad.dispose();
+      },
+    );
+
+    _interstitialAd!.show();
+    _interstitialAd = null;
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +80,7 @@ class GroupDetailsPage extends StatelessWidget {
           (either) => either.fold(
             (failure) => Center(child: Text('Grup yüklenirken hata oluştu')),
             (groups) {
-              final group = groups.asList().firstWhere((g) => g.id == groupId);
+              final group = groups.asList().firstWhere((g) => g.id == widget.groupId);
 
               if (group == null) {
                 return const Center(child: Text('Grup bulunamadı'));
@@ -57,13 +102,13 @@ class GroupDetailsPage extends StatelessWidget {
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
                         alignment: Alignment.center,
-                        width: bannerAd.size.width.toDouble(),
-                        height: bannerAd.size.height.toDouble(),
-                        child: AdWidget(ad: bannerAd),
+                        width: KasaBannerAd().bannerAd.size.width.toDouble(),
+                        height: KasaBannerAd().bannerAd.size.height.toDouble(),
+                        child: AdWidget(ad: KasaBannerAd().bannerAd),
                       ),
 
                       _buildGroupInfoCard(group),
