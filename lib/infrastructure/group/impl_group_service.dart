@@ -269,4 +269,28 @@ class GroupService implements IGroupRepository {
       return left(ServerFailure('${response.body}'));
     }
   }
+
+  @override
+  Future<FailureOr<CreateExpenseResponse>> deleteExpense({
+    required String jwtToken,
+    required int expenseId,
+  }) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/delete-expense'));
+    final response = await http.delete(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken', // Bearer eklendi
+      },
+      body: jsonEncode({"expense_id": expenseId}),
+    );
+    if (response.statusCode == 201) {
+      final jsonResponse = jsonDecode(response.body);
+      final expenses = CreateExpenseResponse.fromJson(jsonResponse);
+      return right(expenses);
+    } else {
+      return left(ServerFailure('${response.body}'));
+    }
+  }
 }

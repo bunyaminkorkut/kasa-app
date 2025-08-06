@@ -84,7 +84,7 @@ class GroupExpensesCard extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => ExpenseDetailPage(expense: expense),
+                          builder: (_) => ExpenseDetailPage(expense: expense, group: group),
                         ),
                       );
                     },

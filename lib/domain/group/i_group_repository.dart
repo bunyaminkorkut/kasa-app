@@ -18,4 +18,5 @@ abstract class IGroupRepository {
   Future<FailureOr<CreateExpenseResponse>> createExpense({required String jwtToken, required CreateExpenseData expenseData});
   Future<FailureOr<String>> payExpense({required String jwtToken, required int groupId, required String sendedUserId});
   Future<FailureOr<UniLinkGroupData>> addGroupWithGroupToken({required String jwtToken, required String groupToken});
+  Future<FailureOr<CreateExpenseResponse>> deleteExpense({required String jwtToken, required int expenseId});
 }

@@ -82,3 +82,13 @@ class GroupEventAddGroupWithToken extends GroupEvent {
 }
 
 
+class GroupEventDeleteExpense extends GroupEvent {
+  const GroupEventDeleteExpense({
+    required this.jwtToken,
+    required this.expenseId,
+  });
+  final String jwtToken;
+  final int expenseId;
+  List<Object?> get props => [jwtToken, expenseId];
+}
+

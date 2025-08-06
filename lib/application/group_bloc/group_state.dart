@@ -15,6 +15,7 @@ final class GroupState extends Equatable {
     required this.creatingExpense,
     required this.isSendingReqAnswer,
     this.sendAddGroupReqErrorMessage,
+    this.isDeletingExpense = false,
     this.isFetchingRequests = false,
     this.isAddingGroupWithGroupToken = false,
     this.isFetchingData = false,
@@ -39,6 +40,7 @@ final class GroupState extends Equatable {
       isFetchingRequests: false,
       creatingExpense: false,
       sendingAddGroupReq: false,
+      isDeletingExpense: false,
       isPayingExpense: false,
       isFetchingData: false,
       isCreatingGroup: false,
@@ -61,6 +63,7 @@ final class GroupState extends Equatable {
   final bool isFetchingRequests;
   final bool sendingAddGroupReq;
   final bool creatingExpense;
+  final bool isDeletingExpense;
   final bool isCreatingGroup;
   final int isSendingReqAnswer;
   final String? sendAddGroupReqErrorMessage;
@@ -78,6 +81,7 @@ final class GroupState extends Equatable {
     bool? isFetchingRequests,
     bool? isCreatingGroup,
     bool? sendingAddGroupReq,
+    bool? isDeletingExpense,
     int? isSendingReqAnswer,
     String? sendAddGroupReqErrorMessage,
     Option<bool>? createExpenseFailOrSuccess,
@@ -116,6 +120,7 @@ final class GroupState extends Equatable {
           this.addGroupWithGroupTokenFailureOrGroup,
       isAddingGroupWithGroupToken:
           isAddingGroupWithGroupToken ?? this.isAddingGroupWithGroupToken,
+      isDeletingExpense: isDeletingExpense ?? this.isDeletingExpense,
     );
   }
 
@@ -143,6 +148,7 @@ final class GroupState extends Equatable {
     isFetchingRequests,
     sendingAddGroupReq, 
     sendAddGroupReqFailureOrRequests, 
+    isDeletingExpense,
     isSendingReqAnswer,
     sendAddGroupReqErrorMessage ?? '',
     creatingExpense,

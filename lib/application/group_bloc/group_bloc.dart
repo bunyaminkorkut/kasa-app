@@ -43,6 +43,9 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       if (event is GroupEventAddGroupWithToken) {
         await _onAddGroupWithToken(event, emit);
       }
+      if (event is GroupEventDeleteExpense) {
+        await _onDeleteExpense(event, emit);
+      }
     });
   }
 
@@ -114,9 +117,14 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     required String jwtToken,
     required String groupToken,
   }) {
-    add(GroupEventAddGroupWithToken(jwtToken: jwtToken, groupToken: groupToken));
+    add(
+      GroupEventAddGroupWithToken(jwtToken: jwtToken, groupToken: groupToken),
+    );
   }
 
+  void addDeleteExpense({required String jwtToken, required int expenseId}) {
+    add(GroupEventDeleteExpense(jwtToken: jwtToken, expenseId: expenseId));
+  }
 
   Future<void> _onCreateGroup(
     _GroupEventCreateGroup event,
@@ -465,7 +473,52 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     );
   }
 
+  Future<void> _onDeleteExpense(
+    GroupEventDeleteExpense event,
+    Emitter<GroupState> emit,
+  ) async {
+    emit(state.copyWith(isDeletingExpense: true));
 
+    final failOrResponse = await _groupRepository.deleteExpense(
+      jwtToken: event.jwtToken,
+      expenseId: event.expenseId,
+    );
+
+    failOrResponse.fold(
+      (failure) {
+        emit(state.copyWith(isDeletingExpense: false));
+      },
+      (newExpense) {
+        final updatedGroups = state.getGroupsFailureOrGroups.map(
+          (either) => either.map((groupList) {
+            final updatedList = groupList.asList().map((group) {
+              if (group.id == newExpense.expense.groupId) {
+                final updatedExpenses = group.expenses.toList();
+                updatedExpenses.removeWhere(
+                  (expense) => expense.expenseId == newExpense.expense.expenseId,
+                );
+                return group.copyWith(
+                  expenses: updatedExpenses.toList(),
+                  debts: newExpense.debts,
+                  credits: newExpense.credits,
+                );
+              }
+              return group;
+            }).toList();
+
+            return KtList.from(updatedList);
+          }),
+        );
+        emit(
+          state.copyWith(
+            isDeletingExpense: false,
+            createExpenseFailOrSuccess: some(true),
+            getGroupsFailureOrGroups: updatedGroups,
+          ),
+        );
+      },
+    );
+  }
 
   final IGroupRepository _groupRepository;
 }
