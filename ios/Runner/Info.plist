@@ -75,8 +75,6 @@
 	</array>
 	<key>UNUserNotificationCenter</key>
 	<true/>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Bu uygulama bildirim göndermek için izninizi ister.</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:kasa.bunyamin.app</string>
