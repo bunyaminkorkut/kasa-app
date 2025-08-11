@@ -98,6 +98,34 @@ class AuthService implements IUserRepository {
   }
 
   @override
+  Future<String> signInWithApple() async {
+    final appleProvider = AppleAuthProvider();
+
+    final UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithProvider(appleProvider);
+
+    print(userCredential.user);
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolveUri(Uri(path: '/login-google'));
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': userCredential.user?.email,
+        'fullname': userCredential.user?.displayName,
+        'userId': userCredential.user?.uid,
+        'idToken': await userCredential.user?.getIdToken(),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['token'] as String;
+    } else {
+      throw Exception('Registration failed: ${response.body}');
+    }
+  }
+
+  @override
   Future<AuthData> getMe({required String jwt}) async {
     final hostUri = Uri.parse(KasaAppConfig().apiHost);
     final uri = hostUri.resolveUri(Uri(path: '/get-me'));

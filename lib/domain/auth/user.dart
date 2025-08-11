@@ -11,6 +11,7 @@ abstract class IUserRepository {
     required String iban,
   });
   Future<String> signInWithGoogle(); // değiştirildi
+  Future<String> signInWithApple(); // değiştirildi
 
   Future<AuthData> getMe({required String jwt});
 
@@ -24,4 +25,5 @@ abstract class IUserRepository {
     required String fcmToken,
     required String jwt,
   });
+
 }

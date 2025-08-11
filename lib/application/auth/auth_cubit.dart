@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kasa_app/domain/auth/auth_data.dart';
 import 'package:kasa_app/infrastructure/auth/impl_auth_service.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthState {
   final bool isAuthenticated;
@@ -83,6 +88,22 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> loginWithApple() async {
+    try {
+      // Apple kimlik doğrulama isteği
+      final jwt = await _authService.signInWithApple();
+
+      // JWT'yi güvenli depolamaya yaz
+      await secureStorage.write(key: 'jwt', value: jwt);
+
+      emit(state.copyWith(isAuthenticated: true, jwt: jwt));
+    } catch (e) {
+      print("Apple login error: $e");
+      emit(state.copyWith(isAuthenticated: false, jwt: null));
+    }
+  }
+
+
   Future<void> logout() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -143,10 +164,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<bool> sendFCMToken(String fcmToken, String jwt) async {
     try {
-      await _authService.sendFCMToken(
-        fcmToken: fcmToken,
-        jwt: jwt,
-      );
+      await _authService.sendFCMToken(fcmToken: fcmToken, jwt: jwt);
       return true;
     } catch (e) {
       print('FCM token gönderilemedi: $e');

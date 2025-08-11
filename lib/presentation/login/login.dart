@@ -136,6 +136,27 @@ class _LoginPageState extends State<LoginPage> {
                   setState(() {
                     _isLoading = true;
                   });
+                  await context.read<AuthCubit>().loginWithApple();
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Apple ile giriş yap'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
                   await context.read<AuthCubit>().loginWithGoogle();
                   setState(() {
                     _isLoading = false;
