@@ -26,4 +26,5 @@ abstract class IUserRepository {
     required String jwt,
   });
 
+  Future<bool> deleteAccount({required String jwt});
 }

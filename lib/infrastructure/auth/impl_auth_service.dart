@@ -223,4 +223,24 @@ class AuthService implements IUserRepository {
       throw Exception('FCM token gönderme başarısız: ${response.body}');
     }
   }
+
+  @override
+  Future<bool> deleteAccount({required String jwt}) async {
+    final hostUri = Uri.parse(KasaAppConfig().apiHost);
+    final uri = hostUri.resolve('/delete-account');
+
+    final response = await http.delete(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwt',
+      },
+    );
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      throw Exception('Hesap silme başarısız: ${response.body}');
+    }
+  }
 }

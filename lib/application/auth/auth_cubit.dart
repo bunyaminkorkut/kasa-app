@@ -171,4 +171,19 @@ class AuthCubit extends Cubit<AuthState> {
       return false;
     }
   }
+
+  Future<void> deleteAccount() async {
+    try {
+      final jwt = state.jwt;
+      if (jwt == null) {
+        throw Exception('JWT bulunamadı');
+      }
+      await _authService.deleteAccount(jwt: jwt);
+      await secureStorage.delete(key: 'jwt');
+      emit(state.copyWith(isAuthenticated: false, jwt: null, user: null));
+    } catch (e) {
+      print('Hesap silinemedi: $e');
+      throw Exception('Hesap silinemedi');
+    }
+  }
 }

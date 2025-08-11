@@ -20,6 +20,10 @@ class _SettingsPageState extends State<SettingsPage> {
     context.read<AuthCubit>().logout();
   }
 
+  void _deleteAccount() {
+    context.read<AuthCubit>().deleteAccount();
+  }
+
   void _showEditDialog({
     required String title,
     required String initialValue,
@@ -202,29 +206,67 @@ class _SettingsPageState extends State<SettingsPage> {
                       foregroundColor: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // ElevatedButton.icon(
-                  //   icon: const Icon(Icons.copy),
-                  //   label: const Text('JWT Kopyala'),
-                  //   onPressed: () {
-                  //     secureStorage.read(key: 'jwt').then((jwt) {
-                  //       if (jwt != null && jwt.isNotEmpty) {
-                  //         Clipboard.setData(ClipboardData(text: jwt));
-                  //         ScaffoldMessenger.of(context).showSnackBar(
-                  //           const SnackBar(content: Text('JWT panoya kopyalandı')),
-                  //         );
-                  //       } else {
-                  //         ScaffoldMessenger.of(context).showSnackBar(
-                  //           const SnackBar(content: Text('JWT bulunamadı')),
-                  //         );
-                  //       }
-                  //     });
-                  //   },
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: Colors.blueGrey,
-                  //     foregroundColor: Colors.white,
-                  //   ),
-                  // ),
+                  const Spacer(), // Butonları alta itmek için
+
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: TextButton(
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            final controller = TextEditingController();
+                            return AlertDialog(
+                              title: const Text('Hesabı Sil'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Hesabınızı kalıcı olarak silmek istediğinize emin misiniz? '
+                                    'Devam etmek için aşağıya "hesabımı sil" yazın.',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextField(
+                                    controller: controller,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Onay metni',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('İptal'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (controller.text.trim().toLowerCase() ==
+                                        'hesabımı sil') {
+                                      Navigator.pop(context, true);
+                                    } else {
+                                      // Uyarı göstermek istersen buraya ekleyebilirsin
+                                    }
+                                  },
+                                  child: const Text('Sil'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (confirmed == true) {
+                          _deleteAccount();
+                        }
+                      },
+                      child: const Text(
+                        'Hesabı Sil',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
                 ],
               );
             },
