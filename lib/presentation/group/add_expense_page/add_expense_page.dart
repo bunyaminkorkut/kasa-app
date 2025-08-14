@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:kasa_app/application/group_bloc/group_bloc.dart';
 import 'package:kasa_app/domain/group/create_expense_data.dart';
@@ -57,6 +58,7 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
   final _noteController = TextEditingController();
   final _amountController = TextEditingController();
   String? _billImageURL;
+  InterstitialAd? _interstitialAd;
 
   final Set<String> _selectedMemberIds = {};
   bool _isSplitEqually = true;
@@ -73,6 +75,7 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
     _titleController.dispose();
     _noteController.dispose();
     _amountController.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -127,9 +130,45 @@ class _CreateExpensePageState extends State<CreateExpensePage> {
         jwtToken: jwt,
         expenseData: expense,
       );
+      // Reklamı yükle ve göster
+      _loadInterstitialAd();
     }
   }
 
+    void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-8425387935401647/2464426860', // senin geçiş reklamı ID'in
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          print('✅ Interstitial ad loaded');
+          _interstitialAd = ad;
+          _showInterstitialAd(); // yüklendiği gibi göster
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('❌ Interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) return;
+
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('🔁 Reklam kapandı');
+        ad.dispose();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('❌ Reklam gösterilemedi: $error');
+        ad.dispose();
+      },
+    );
+
+    _interstitialAd!.show();
+    _interstitialAd = null;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

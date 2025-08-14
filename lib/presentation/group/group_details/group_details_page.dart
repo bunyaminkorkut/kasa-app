@@ -21,54 +21,54 @@ class GroupDetailsPage extends StatefulWidget {
 }
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
-  // InterstitialAd? _interstitialAd;
+  InterstitialAd? _interstitialAd;
 
   @override
   void initState() {
     super.initState();
-    // _loadInterstitialAd();
+    _loadInterstitialAd();
   }
 
-  // void _loadInterstitialAd() {
-  //   InterstitialAd.load(
-  //     adUnitId: 'ca-app-pub-8425387935401647/2464426860', // senin geçiş reklamı ID'in
-  //     request: const AdRequest(),
-  //     adLoadCallback: InterstitialAdLoadCallback(
-  //       onAdLoaded: (InterstitialAd ad) {
-  //         print('✅ Interstitial ad loaded');
-  //         _interstitialAd = ad;
-  //         _showInterstitialAd(); // yüklendiği gibi göster
-  //       },
-  //       onAdFailedToLoad: (LoadAdError error) {
-  //         print('❌ Interstitial ad failed to load: $error');
-  //       },
-  //     ),
-  //   );
-  // }
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-8425387935401647/2464426860', // senin geçiş reklamı ID'in
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          print('✅ Interstitial ad loaded');
+          _interstitialAd = ad;
+          _showInterstitialAd(); // yüklendiği gibi göster
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          print('❌ Interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
 
-  // void _showInterstitialAd() {
-  //   if (_interstitialAd == null) return;
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) return;
 
-  //   _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-  //     onAdDismissedFullScreenContent: (InterstitialAd ad) {
-  //       print('🔁 Reklam kapandı');
-  //       ad.dispose();
-  //     },
-  //     onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-  //       print('❌ Reklam gösterilemedi: $error');
-  //       ad.dispose();
-  //     },
-  //   );
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('🔁 Reklam kapandı');
+        ad.dispose();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('❌ Reklam gösterilemedi: $error');
+        ad.dispose();
+      },
+    );
 
-  //   _interstitialAd!.show();
-  //   _interstitialAd = null;
-  // }
+    _interstitialAd!.show();
+    _interstitialAd = null;
+  }
 
-  // @override
-  // void dispose() {
-  //   _interstitialAd?.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
+  }
 
 
   @override
