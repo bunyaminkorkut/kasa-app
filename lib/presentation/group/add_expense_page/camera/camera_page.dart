@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kasa_app/application/photo/photo_cubit.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -99,8 +101,17 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
   void _saveAndReturn() async {
     if (_capturedImage == null) return;
+    print(
+      'Seçilen resim: ${_capturedImage != null ? await File(_capturedImage!.path).length() : 0} bytes',
+    );
 
-    final file = File(_capturedImage!.path);
+    File file = File(_capturedImage!.path);
+    file = await _compressIfNeeded(file); // ✅ burada sıkıştırma
+
+    print(
+      'Seçilen resim: ${_capturedImage != null ? await File(_capturedImage!.path).length() : 0} bytes',
+    );
+
     final FlutterSecureStorage secureStorage = FlutterSecureStorage();
     final jwtToken = await secureStorage.read(key: 'jwt');
     if (jwtToken == null || jwtToken.isEmpty) {
@@ -111,6 +122,59 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       return;
     }
     context.read<PhotoCubit>().uploadPhoto(jwtToken: jwtToken, photo: file);
+  }
+
+  Future<void> _pickFromGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    print('Seçilen resim: ${image != null ? await image.length() : 0} bytes');
+    if (image != null) {
+      File file = File(image.path);
+      file = await _compressIfNeeded(file);
+
+      setState(() {
+        _capturedImage = XFile(file.path);
+      });
+    }
+  }
+
+  Future<File> _compressIfNeeded(File file) async {
+    final int maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+    final fileLength = await file.length();
+
+    if (fileLength <= maxSizeInBytes) {
+      return file; // ✅ zaten küçükse dokunma
+    }
+
+    final targetPath = "${file.path}_compressed.jpg";
+
+    // İlk deneme: %80 kalite
+    XFile? compressedXFile = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 60,
+    );
+    File? compressed = compressedXFile != null
+        ? File(compressedXFile.path)
+        : null;
+
+    if (compressed == null) return file;
+
+    // Tekrar boyutu kontrol et
+    if (await compressed.length() > maxSizeInBytes) {
+      // Daha da küçült (%60 kalite)
+      XFile? furtherCompressedXFile =
+          await FlutterImageCompress.compressAndGetFile(
+            file.absolute.path,
+            targetPath,
+            quality: 40,
+          );
+      compressed = furtherCompressedXFile != null
+          ? File(furtherCompressedXFile.path)
+          : null;
+    }
+
+    return compressed ?? file;
   }
 
   Widget _buildLoading() {
@@ -128,8 +192,22 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           Positioned.fill(child: CameraPreview(_controller!)),
           Positioned(
             bottom: 30,
-            left: 0,
+            left: 20, // 👈 sol alt köşe
+            child: ElevatedButton(
+              onPressed: _pickFromGallery,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              child: const Icon(Icons.photo_library, size: 30),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
             right: 0,
+            left: 0,
             child: Center(
               child: ElevatedButton(
                 onPressed: _takePicture,

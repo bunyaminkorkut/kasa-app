@@ -81,5 +81,7 @@
 	</array>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-8425387935401647~8816413921</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Fotoğraf galerisine erişmek için izin gerekiyor.</string>
 </dict>
 </plist>
