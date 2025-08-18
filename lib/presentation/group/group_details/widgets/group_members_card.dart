@@ -183,6 +183,10 @@ class GroupMembersCard extends StatelessWidget {
                   member.email,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
+                Text(
+                  "Harcama: ${member.totalShare.toStringAsFixed(2)} ₺",
+                  style: TextStyle(fontSize: 12, color: Colors.grey[900]),
+                ),
               ],
             ),
           ),
