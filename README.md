@@ -7,13 +7,12 @@ Tatil, etkinlik, ev arkadaşlığı veya ortak harcamalar için ideal bir çöz�
 
 ## 📱 Uygulama Ekran Görüntüleri
 
-| Gruplarım Ekranı | Grup Detayı | Gider Listesi |
-|------------------|--------------|----------------|
-| ![Gruplar](screenshots/1.png) | ![Grup Detayı](screenshots/2.png) | ![Gider Listesi](screenshots/3.png) |
+| Gruplarım Ekranı | Grup Detayı | Gider Listesi | Harcama Detayı |
+|------------------|--------------|----------------|----------------|
+| ![Gruplar](screenshots/1.png) | ![Grup Detayı](screenshots/2.png) | ![Gider Listesi](screenshots/3.png) | ![Harcama Detayı](screenshots/4.png) |
 
-| Harcama Detayı |
-|----------------|
-| ![Harcama Detayı](screenshots/4.png) |
+
+
 
 > 📷 Görseller, uygulamanın Flutter tabanlı mobil arayüzünden alınmıştır.
 
