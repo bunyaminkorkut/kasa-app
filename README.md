@@ -11,9 +11,9 @@ Tatil, etkinlik, ev arkadaşlığı veya ortak harcamalar için ideal bir çöz�
 |------------------|--------------|----------------|
 | ![Gruplar](screenshots/1.png) | ![Grup Detayı](screenshots/2.png) | ![Gider Listesi](screenshots/3.png) |
 
-| Harcama Detayı | Bildirimler (Talep) | Bildirimler (Durum) |
-|----------------|----------------------|----------------------|
-| ![Harcama Detayı](screenshots/4.png) | ![Bildirimler Pending](screenshots/5.png) | ![Bildirimler Durum](screenshots/6.png) |
+| Harcama Detayı |
+|----------------|
+| ![Harcama Detayı](screenshots/4.png) |
 
 > 📷 Görseller, uygulamanın Flutter tabanlı mobil arayüzünden alınmıştır.
 
